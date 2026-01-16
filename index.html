@@ -1,69 +1,91 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Triksha - Unified Healthcare Platform</title>
 
-    <!-- ✅ Custom favicon (logo) -->
-    <link rel="icon" type="image/png" href="/niramya-logo.png" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Triksha - Unified Healthcare Platform</title>
 
-    <!-- Web widget script -->
-    <script
-      id="omnidimension-web-widget"
-      async
-      src="https://backend.omnidim.io/web_widget.js?secret_key=16d01050e62143b4bac418f3fad0ae3f"
-    ></script>
+  <!-- ✅ Custom favicon (logo) -->
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
 
-    <style>
-      /* ✅ Sticky call button in bottom-left */
-      #global-logo {
-        position: fixed;
-        bottom: 20px;   /* distance from bottom */
-        left: 20px;     /* distance from left */
-        z-index: 9999;
-      }
-      #global-logo svg {
-        width: 70px;   /* icon size */
-        height: 70px;
-        background: #16a34a;  /* green button */
-        padding: 15px;
-        border-radius: 50%;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        transition: transform 0.2s ease-in-out;
-        cursor: pointer;
-      }
-      #global-logo svg:hover {
-        transform: scale(1.15);
-        background: #15803d; /* darker green on hover */
-      }
-    </style>
-  </head>
-  <body>
-    <!-- ✅ Sticky Call Icon (Bottom-Left) -->
-    <div id="global-logo">
-      <a href="tel:+101" title="Call Emergency Number">
-        <!-- Phone SVG Icon -->
-        <svg xmlns="http://www.w3.org/2000/svg"
-             fill="white"
-             viewBox="0 0 24 24"
-             stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-            d="M3 5a2 2 0 012-2h3.28a1 1 0 
+  <!-- Web widget script removed in favor of custom ChatWidget -->
+
+  <style>
+    /* ✅ Sticky call button in bottom-left */
+    #global-logo {
+      position: fixed;
+      bottom: 20px;
+      /* distance from bottom */
+      left: 20px;
+      /* distance from left */
+      z-index: 9999;
+    }
+
+    #global-logo svg {
+      width: 70px;
+      /* icon size */
+      height: 70px;
+      background: #16a34a;
+      /* green button */
+      padding: 15px;
+      border-radius: 50%;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s ease-in-out;
+      cursor: pointer;
+    }
+
+    #global-logo svg:hover {
+      transform: scale(1.15);
+      background: #15803d;
+      /* darker green on hover */
+    }
+
+    /* ✅ Chatbot Widget Fixes */
+    #omni-widget-component,
+    #chat-iframe-container,
+    div[id*="omni-widget"],
+    iframe[title="Chat widget"] {
+      max-height: 75vh !important;
+      /* Prevent covering top */
+      bottom: 20px !important;
+      right: 20px !important;
+      z-index: 9999 !important;
+      /* Ensure it stays on top but contained */
+    }
+
+    /* Adjust iframe height specifically if container is rigid */
+    #omni-widget-component iframe,
+    #chat-iframe-container iframe {
+      max-height: 70vh !important;
+      border-radius: 12px !important;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ✅ Sticky Call Icon (Bottom-Left) -->
+  <div id="global-logo">
+    <a href="tel:+101" title="Call Emergency Number">
+      <!-- Phone SVG Icon -->
+      <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 
                01.948.684l1.518 4.554a1 1 0 
                01-.272 1.07l-2.272 2.272a16.001 
                16.001 0 006.586 6.586l2.272-2.272a1 
                1 0 011.07-.272l4.554 1.518a1 1 0 
                01.684.949V19a2 2 0 01-2 2h-1C9.163 
                21 3 14.837 3 7V5z" />
-        </svg>
-      </a>
-    </div>
+      </svg>
+    </a>
+  </div>
 
-    <!-- React Root -->
-    <div id="root"></div>
+  <!-- React Root -->
+  <div id="root"></div>
 
-    <!-- Vite/React entry point -->
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+  <!-- Vite/React entry point -->
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>

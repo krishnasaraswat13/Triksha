@@ -61,7 +61,7 @@ const Login = () => {
           <div className="mx-auto flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-green-500 rounded-full mb-4">
             <Heart className="h-8 w-8 text-white" />
           </div>
-          <h2 className="text-3xl font-bold text-gray-900">Welcome to NIRAMYA</h2>
+          <h2 className="text-3xl font-bold text-gray-900">Welcome to TRIKSHA</h2>
           <p className="mt-2 text-sm text-gray-600">
             Sign in to access your healthcare dashboard
           </p>
@@ -166,7 +166,7 @@ const Login = () => {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">New to NIRAMYA?</span>
+                <span className="px-2 bg-white text-gray-500">New to TRIKSHA?</span>
               </div>
             </div>
 

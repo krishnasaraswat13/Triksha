@@ -11,12 +11,12 @@
 ## 🏥 Problem Statement
 - Rural areas in India have **limited access to doctors and hospitals**.  
 - People with **low literacy struggle with text-heavy apps**.  
--# Triksha Telemedicine Platformpps require **high bandwidth and strong internet**.  
+-# TRIKSHA - Unified Healthcare Platformpps require **high bandwidth and strong internet**.  
 - Early symptom detection and quick consultation can prevent **serious health issues**.  
 
 ---
 
-## 💡 Our Solution – *Niramya*
+## 💡 Our Solution – *Triksha*
 - ✅ **AI Symptom Checker** → Users enter symptoms, system suggests possible conditions.  
 - ✅ **Voice & Chatbot** → Supports **vernacular language voice input** for ease of use.  
 - ✅ **Tele-consultation** → Book and attend doctor consultations online (video/audio).  
@@ -87,7 +87,7 @@ MongoDB Atlas / Local instance
 
 npm or yarn
 
-🚀 Steps
+ Steps
 # Clone repo
 git clone https://github.com/AnkitPandey2005/Niramya_SIH.git
 cd Niramya_SIH

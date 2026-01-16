@@ -121,7 +121,7 @@ const Impact = () => {
             Transforming Healthcare Impact
           </h1>
           <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto">
-            Measuring the real-world impact of NIRAMYA across healthcare, 
+            Measuring the real-world impact of TRIKSHA across healthcare,
             economic, social, and environmental dimensions.
           </p>
         </div>
@@ -135,13 +135,13 @@ const Impact = () => {
               Impact by Numbers
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Real metrics demonstrating NIRAMYA's transformative impact on rural healthcare delivery.
+              Real metrics demonstrating TRIKSHA's transformative impact on rural healthcare delivery.
             </p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
             {overallStats.map((stat, index) => (
-              <div 
+              <div
                 key={index}
                 className="bg-gradient-to-br from-blue-50 to-green-50 p-6 rounded-xl text-center hover:shadow-lg transition-all duration-300 transform hover:scale-105"
               >
@@ -166,13 +166,13 @@ const Impact = () => {
               Comprehensive Impact Analysis
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              NIRAMYA's multi-dimensional impact across various sectors of society and economy.
+              TRIKSHA's multi-dimensional impact across various sectors of society and economy.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {impacts.map((impact, index) => (
-              <div 
+              <div
                 key={index}
                 className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-102 overflow-hidden"
               >
@@ -194,7 +194,7 @@ const Impact = () => {
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="p-6">
                   <h4 className="font-semibold text-gray-900 mb-4">Key Benefits:</h4>
                   <ul className="space-y-3">
@@ -220,7 +220,7 @@ const Impact = () => {
               Success Stories
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Real stories from communities transformed by NIRAMYA's telemedicine platform.
+              Real stories from communities transformed by TRIKSHA's telemedicine platform.
             </p>
           </div>
 
@@ -234,7 +234,7 @@ const Impact = () => {
               },
               {
                 title: "Maternal Care Success",
-                location: "Rural Nabha District",
+                location: "Rural Mathura District",
                 story: "Zero maternal mortality in participating villages through continuous remote monitoring.",
                 impact: "150+ safe deliveries"
               },
@@ -266,7 +266,7 @@ const Impact = () => {
               Future Impact Projections
             </h2>
             <p className="text-xl text-green-100 max-w-3xl mx-auto">
-              By 2030, NIRAMYA aims to transform healthcare access across rural India.
+              By 2030, TRIKSHA aims to transform healthcare access across rural India.
             </p>
           </div>
 

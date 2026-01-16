@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Play, Shield, Users, Zap, Globe } from 'lucide-react';
-import { useState } from "react";
-import hospitalVideo from "./hospital_video.mp4";
+
 
 
 const Home = () => {
@@ -39,73 +38,54 @@ const Home = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-green-800 text-white">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="text-left">
-              <div className="mb-6">
-                {/* <span className="inline-block bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium mb-4">
-                  Smart India Hackathon 2025 • Problem ID: 25018
-                </span> */}
-                <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-                  TRIKSHA
-                  <span className="block text-2xl md:text-3xl font-normal text-blue-200 mt-2">
-                    त्रिक्षा - Your Health, Our Priority
-                  </span>
-                </h1>
-                <p className="text-xl md:text-2xl text-blue-100 mb-8 leading-relaxed">
-                  A multilingual, AI-enabled telemedicine platform bringing quality
-                  healthcare to rural India through innovative technology.
-                </p>
-              </div>
+      <section className="relative overflow-hidden bg-gradient-to-br from-teal-50 via-white to-emerald-50 pt-32 pb-20">
+        {/* Animated Background Blobs */}
+        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-teal-100 rounded-full blur-3xl opacity-30 animate-float"></div>
+        <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-emerald-100 rounded-full blur-3xl opacity-30 animate-float delay-1000"></div>
+        <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-blue-100 rounded-full blur-3xl opacity-20 animate-pulse"></div>
 
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <Link
-                  to="/register"
-                  className="inline-flex items-center justify-center px-8 py-4 bg-white text-blue-900 rounded-lg font-semibold hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 shadow-lg"
-                >
-                  Get Started
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-                <button className="inline-flex items-center justify-center px-8 py-4 border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-blue-900 transition-all duration-300">
-                  <Play className="mr-2 h-5 w-5" />
-                  Watch Demo
-                </button>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                {stats.map((stat, index) => (
-                  <div key={index} className="text-center">
-                    <div className="text-2xl md:text-3xl font-bold text-white mb-1">
-                      {stat.number}
-                    </div>
-                    <div className="text-sm text-blue-200">
-                      {stat.label}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 shadow-2xl">
-                <img
-                  src="https://images.pexels.com/photos/4021775/pexels-photo-4021775.jpeg?auto=compress&cs=tinysrgb&w=800"
-                  alt="Telemedicine consultation"
-                  className="rounded-xl w-full h-64 object-cover mb-6"
-                />
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold">Transforming Rural Healthcare</h3>
-                  <p className="text-blue-100 leading-relaxed">
-                    Connecting patients in remote areas with qualified doctors through
-                    secure video consultations, AI-powered symptom checking, and
-                    real-time pharmacy integration.
-                  </p>
-                </div>
-              </div>
-            </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
+          <div className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm border border-teal-100 rounded-full px-4 py-1.5 mb-8 animate-fade-in-up shadow-sm">
+            <span className="flex h-2 w-2 rounded-full bg-teal-500 animate-pulse"></span>
+            <span className="text-sm font-medium text-teal-700">Reimagining Healthcare</span>
           </div>
+
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight text-teal-900 leading-tight animate-fade-in-up delay-100">
+            Heal with <br className="hidden md:block" />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-600 to-emerald-600">
+              Confidence & Care
+            </span>
+          </h1>
+
+          <p className="text-xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed animate-fade-in-up delay-200">
+            Experience a soothing, AI-powered healthcare journey. Seamless appointments,
+            instant calm, and personalized care—designed for your well-being.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in-up delay-300">
+            <Link
+              to="/register"
+              className="group inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-full font-semibold hover:from-teal-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-teal-500/30"
+            >
+              Start Your Journey
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <button className="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-700 border border-gray-200 rounded-full font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all duration-300 shadow-sm hover:shadow-md">
+              <Play className="mr-2 h-5 w-5 fill-current text-teal-600" />
+              Watch Demo
+            </button>
+          </div>
+
+          {/* Stats Preview */}
+          <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto border-t border-gray-100 pt-10 animate-fade-in-up delay-300">
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center group cursor-default">
+                <div className="text-3xl font-bold text-teal-800 mb-1 group-hover:scale-110 transition-transform duration-300">{stat.number}</div>
+                <div className="text-sm text-gray-500 font-medium group-hover:text-teal-600 transition-colors">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+
         </div>
       </section>
 

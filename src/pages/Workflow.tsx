@@ -81,10 +81,10 @@ const Workflow = () => {
       <section className="pt-24 pb-16 bg-gradient-to-r from-blue-600 to-green-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            How NIRAMYA Works
+            How TRIKSHA Works
           </h1>
           <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto">
-            A simple, step-by-step process designed to make healthcare accessible 
+            A simple, step-by-step process designed to make healthcare accessible
             to everyone in rural India.
           </p>
         </div>
@@ -111,11 +111,11 @@ const Workflow = () => {
                       </h3>
                     </div>
                   </div>
-                  
+
                   <p className="text-gray-600 text-lg mb-6 leading-relaxed">
                     {step.description}
                   </p>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {step.details.map((detail, idx) => (
                       <div key={idx} className="flex items-center space-x-3">
@@ -148,14 +148,14 @@ const Workflow = () => {
               Complete Healthcare Journey
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              From registration to treatment, NIRAMYA provides a seamless 
+              From registration to treatment, TRIKSHA provides a seamless
               healthcare experience for rural communities.
             </p>
           </div>
 
           <div className="relative">
             <div className="hidden lg:block absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-blue-500 to-green-500 rounded-full"></div>
-            
+
             <div className="space-y-12 lg:space-y-8">
               {steps.map((step, index) => (
                 <div key={index} className={`flex items-center ${index % 2 === 0 ? 'lg:justify-start' : 'lg:justify-end'}`}>
@@ -182,7 +182,7 @@ const Workflow = () => {
             Ready to Start Your Healthcare Journey?
           </h2>
           <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
-            Join the NIRAMYA platform today and experience healthcare like never before. 
+            Join the TRIKSHA platform today and experience healthcare like never before.
             It's simple, secure, and designed for you.
           </p>
           {/* <button className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors transform hover:scale-105">

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Heart, Menu, X, LogOut, User } from 'lucide-react';
+import { Plus, Menu, X, LogOut, User } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 const Navbar = () => {
@@ -20,8 +20,6 @@ const Navbar = () => {
     { path: '/features', label: 'Features' },
     { path: '/workflow', label: 'Workflow' },
     { path: '/impact', label: 'Impact' },
-    // { path: '/team', label: 'Team' },
-    // { path: '/references', label: 'References' },
     { path: '/contact', label: 'Contact' }
   ];
 
@@ -33,13 +31,10 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="bg-gradient-to-r from-blue-600 to-green-500 p-2 rounded-lg">
-              <Heart className="h-6 w-6 text-white" />
+            <div className="bg-gradient-to-r from-teal-500 to-emerald-500 p-2 rounded-lg shadow-md">
+              <Plus className="h-6 w-6 text-white stroke-[3]" />
             </div>
-            <div>
-              <span className="text-xl font-bold text-gray-900">NIRAMYA</span>
-              <p className="text-xs text-gray-600 -mt-1">Free from Illness</p>
-            </div>
+            <span className="text-2xl font-bold text-teal-900">Triksha</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -48,11 +43,10 @@ const Navbar = () => {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`transition-colors duration-200 hover:text-blue-600 ${
-                  isActive(link.path) 
-                    ? 'text-blue-600 font-semibold border-b-2 border-blue-600' 
+                className={`transition-colors duration-200 hover:text-teal-600 ${isActive(link.path)
+                    ? 'text-teal-600 font-semibold border-b-2 border-teal-600'
                     : 'text-gray-700'
-                }`}
+                  }`}
               >
                 {link.label}
               </Link>
@@ -65,14 +59,14 @@ const Navbar = () => {
               <div className="flex items-center space-x-3">
                 <Link
                   to="/dashboard"
-                  className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex items-center space-x-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
                 >
                   <User className="h-4 w-4" />
                   <span>Dashboard</span>
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center space-x-2 text-gray-600 hover:text-red-600 transition-colors"
+                  className="flex items-center space-x-2 text-gray-600 hover:text-teal-600 transition-colors"
                 >
                   <LogOut className="h-4 w-4" />
                   <span>Logout</span>
@@ -85,15 +79,15 @@ const Navbar = () => {
               <div className="flex items-center space-x-3">
                 <Link
                   to="/login"
-                  className="text-gray-700 hover:text-blue-600 transition-colors"
+                  className="text-gray-700 hover:text-teal-600 transition-colors"
                 >
                   Login
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors shadow-sm"
                 >
-                  Register
+                  Get Started
                 </Link>
               </div>
             )}
@@ -121,22 +115,21 @@ const Navbar = () => {
                   key={link.path}
                   to={link.path}
                   onClick={() => setIsMenuOpen(false)}
-                  className={`block py-2 px-4 rounded-md transition-colors ${
-                    isActive(link.path) 
-                      ? 'bg-blue-100 text-blue-600 font-semibold' 
+                  className={`block py-2 px-4 rounded-md transition-colors ${isActive(link.path)
+                      ? 'bg-teal-50 text-teal-600 font-semibold'
                       : 'text-gray-700 hover:bg-gray-100'
-                  }`}
+                    }`}
                 >
                   {link.label}
                 </Link>
               ))}
-              
+
               {isAuthenticated ? (
                 <div className="pt-4 border-t border-gray-200 mt-4">
                   <Link
                     to="/dashboard"
                     onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg mb-2"
+                    className="flex items-center space-x-2 bg-teal-600 text-white px-4 py-2 rounded-lg mb-2"
                   >
                     <User className="h-4 w-4" />
                     <span>Dashboard</span>
@@ -164,7 +157,7 @@ const Navbar = () => {
                   <Link
                     to="/register"
                     onClick={() => setIsMenuOpen(false)}
-                    className="block bg-blue-600 text-white px-4 py-2 rounded-lg text-center"
+                    className="block bg-teal-600 text-white px-4 py-2 rounded-lg text-center"
                   >
                     Register
                   </Link>

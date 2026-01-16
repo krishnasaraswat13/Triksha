@@ -35,8 +35,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('niramya_token');
-    const storedUser = localStorage.getItem('niramya_user');
+    const storedToken = localStorage.getItem('triksha_token');
+    const storedUser = localStorage.getItem('triksha_user');
 
     if (storedToken && storedUser) {
       try {
@@ -44,8 +44,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(JSON.parse(storedUser));
       } catch (error) {
         console.error('Error parsing stored user data:', error);
-        localStorage.removeItem('niramya_token');
-        localStorage.removeItem('niramya_user');
+        localStorage.removeItem('triksha_token');
+        localStorage.removeItem('triksha_user');
       }
     }
   }, []);
@@ -53,15 +53,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = (newToken: string, userData: User) => {
     setToken(newToken);
     setUser(userData);
-    localStorage.setItem('niramya_token', newToken);
-    localStorage.setItem('niramya_user', JSON.stringify(userData));
+    localStorage.setItem('triksha_token', newToken);
+    localStorage.setItem('triksha_user', JSON.stringify(userData));
   };
 
   const logout = () => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem('niramya_token');
-    localStorage.removeItem('niramya_user');
+    localStorage.removeItem('triksha_token');
+    localStorage.removeItem('triksha_user');
   };
 
   const value: AuthContextType = {

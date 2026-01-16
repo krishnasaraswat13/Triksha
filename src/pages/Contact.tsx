@@ -45,7 +45,7 @@ const Contact = () => {
     {
       icon: <Mail className="h-8 w-8 text-blue-600" />,
       title: "Email Us",
-      details: ["team@debugthugs.com", "niramya@debugthugs.com"],
+      details: ["support@triksha.com", "contact@triksha.com"],
       description: "Send us your questions or feedback"
     },
     {
@@ -57,27 +57,27 @@ const Contact = () => {
     {
       icon: <MapPin className="h-8 w-8 text-red-600" />,
       title: "Visit Us",
-      details: ["Nabha, Punjab", "India - 147201"],
+      details: ["Mathura, Uttar Pradesh", "India - 281001"],
       description: "Our development center location"
     }
   ];
 
   const faqs = [
     {
-      question: "How does NIRAMYA ensure data privacy and security?",
-      answer: "NIRAMYA implements end-to-end encryption, HIPAA compliance, and secure JWT authentication to protect all patient data and communications."
+      question: "How does TRIKSHA ensure data privacy and security?",
+      answer: "TRIKSHA implements end-to-end encryption, HIPAA compliance, and secure JWT authentication to protect all patient data and communications."
     },
     {
       question: "What languages are supported in the platform?",
-      answer: "Currently, NIRAMYA supports English, Hindi, and Punjabi for both voice and text interactions with plans to add more regional languages."
+      answer: "Currently, TRIKSHA supports English, Hindi, and Punjabi for both voice and text interactions with plans to add more regional languages."
     },
     {
-      question: "How can doctors join the NIRAMYA platform?",
+      question: "How can doctors join the TRIKSHA platform?",
       answer: "Healthcare providers can register through our portal with their medical credentials. We verify all doctors before allowing them to conduct consultations."
     },
     {
-      question: "Is NIRAMYA available for government integration?",
-      answer: "Yes, NIRAMYA is designed to integrate with government health systems and provides comprehensive analytics for public health monitoring."
+      question: "Is TRIKSHA available for government integration?",
+      answer: "Yes, TRIKSHA is designed to integrate with government health systems and provides comprehensive analytics for public health monitoring."
     }
   ];
 
@@ -90,7 +90,7 @@ const Contact = () => {
             Get in Touch
           </h1>
           <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto">
-            Have questions about NIRAMYA or want to collaborate with Debug Thugs? 
+            Have questions about TRIKSHA or want to collaborate with us?
             We'd love to hear from you.
           </p>
         </div>
@@ -102,7 +102,7 @@ const Contact = () => {
           <div>
             <div className="bg-white rounded-2xl shadow-xl p-8">
               <h2 className="text-3xl font-bold text-gray-900 mb-6">Send us a Message</h2>
-              
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
@@ -192,7 +192,7 @@ const Contact = () => {
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-6">Contact Information</h2>
               <p className="text-lg text-gray-600 mb-8">
-                Reach out to the Debug Thugs team for any questions about NIRAMYA, 
+                Reach out to our team for any questions about TRIKSHA,
                 collaboration opportunities, or technical support.
               </p>
             </div>
@@ -225,12 +225,12 @@ const Contact = () => {
                 <p><span className="font-semibold">Problem ID:</span> 25018</p>
                 <p><span className="font-semibold">Theme:</span> Healthcare Technology</p>
                 <p><span className="font-semibold">Team:</span> Debug Thugs</p>
-                <p><span className="font-semibold">Project:</span> NIRAMYA Telemedicine Platform</p>
+                <p><span className="font-semibold">Project:</span> TRIKSHA Telemedicine Platform</p>
               </div>
             </div>
             */}
           </div>
-        </div> 
+        </div>
 
         {/* FAQ Section */}
         <div className="mt-16">
@@ -239,7 +239,7 @@ const Contact = () => {
               Frequently Asked Questions
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Find answers to common questions about NIRAMYA and our telemedicine platform.
+              Find answers to common questions about TRIKSHA and our telemedicine platform.
             </p>
           </div>
 

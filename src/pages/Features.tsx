@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Video, Globe, Bot, Mic, Scale, Shield } from 'lucide-react';
 
 type FeatureColor = 'blue' | 'green' | 'indigo' | 'orange' | 'teal' | 'pink';
@@ -75,7 +76,7 @@ const Features = () => {
             Comprehensive Healthcare Features
           </h1>
           <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto">
-            Discover how NIRAMYA's advanced features are transforming healthcare
+            Discover how TRIKSHA's advanced features are transforming healthcare
             access for rural communities across India.
           </p>
         </div>
@@ -122,11 +123,11 @@ const Features = () => {
           </h2>
           <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
             Join thousands of patients and healthcare providers who are already
-            benefiting from NIRAMYA's innovative telemedicine platform.
+            benefiting from TRIKSHA's innovative telemedicine platform.
           </p>
-          <button className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors transform hover:scale-105">
-            <a href="http://localhost:5173/">Get Started Today</a>
-          </button>
+          <Link to="/register" className="inline-block bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors transform hover:scale-105">
+            Get Started Today
+          </Link>
         </div>
       </section>
     </div>

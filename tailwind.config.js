@@ -4,10 +4,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#0f172a', // Slate 900
-        surface: '#1e293b',    // Slate 800
-        primary: '#0ea5e9',    // Sky 500
-        secondary: '#64748b',  // Slate 500
+        background: '#ffffff',
+        surface: '#f0fdfa',    // Teal 50
+        primary: '#0f766e',    // Teal 700
+        secondary: '#14b8a6',  // Teal 500
+        accent: '#99f6e4',     // Teal 200
       },
     },
   },

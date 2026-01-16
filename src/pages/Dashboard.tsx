@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Calendar, Video, FileText, Activity, Settings,
-  MessageSquare, Pill, BarChart, Heart, Phone, Clock
+  MessageSquare, Pill, BarChart, Heart, Phone, Clock, Edit2, Save, X
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+// import VoiceAssistant from '../components/VoiceAssistant'; // Disabled in favor of global ChatWidget
 
 // This allows TypeScript to recognize the global variables attached to the window object
 declare global {
@@ -35,12 +36,56 @@ const Dashboard: React.FC = () => {
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [isCalling, setIsCalling] = useState(false);
+  // const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
   const jitsiContainerRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<any>(null);
 
+  // Profile Edit State
+  const [messages, setMessages] = useState<any[]>([]); // Messages State
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    role: ''
+  });
+
   useEffect(() => {
-    fetchUserData();
-  }, []);
+    if (user) {
+      setFormData({
+        name: user.name || '',
+        phone: user.phone || '',
+        email: user.email || '',
+        role: user.role || ''
+      });
+      fetchUserData();
+    }
+  }, [user]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSaveProfile = () => {
+    // Mock API call / Update Logic
+    setIsEditing(false);
+    // In a real app, calls updateProfile(formData) here
+    alert("Profile updated successfully! (Mock)");
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    // Reset to original user data
+    if (user) {
+      setFormData({
+        name: user.name || '',
+        phone: user.phone || '',
+        email: user.email || '',
+        role: user.role || ''
+      });
+    }
+  };
 
   const fetchUserData = async () => {
     try {
@@ -56,21 +101,26 @@ const Dashboard: React.FC = () => {
       if (consultationsResponse.ok) {
         const consultationsData = await consultationsResponse.json();
         setConsultations(consultationsData);
-      } else {
-        console.error("Failed to fetch consultations");
       }
 
-      const doctorsResponse = await fetch('/api/users/doctors', {
-        headers: { 'Authorization': ` Bearer ${token}` }
-      });
-      if (doctorsResponse.ok) {
-        const doctorsData = await doctorsResponse.json();
-        setDoctors(doctorsData);
-      } else {
-        console.error("Failed to fetch doctors");
+      // Fetch Messages
+      const messagesResponse = await fetch('/api/contact');
+      if (messagesResponse.ok) {
+        const allMessages = await messagesResponse.json();
+        // Filter messages for current user (assuming email match) or show all for demo if email not set
+        // For now, listing all for visibility or filtering if user has email
+        const userMessages = allMessages.filter((msg: any) => msg.email === user?.email);
+        setMessages(userMessages.length > 0 ? userMessages : allMessages); // Fallback to all for demo
       }
+
+      // Mock Doctors data (replace with API if available)
+      setDoctors([
+        { _id: '1', name: 'Dr. Sarah Wilson' },
+        { _id: '2', name: 'Dr. James Chen' },
+        { _id: '3', name: 'Dr. Emily Parker' },
+      ]);
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error('Error fetching data:', error);
     }
   };
 
@@ -150,7 +200,7 @@ const Dashboard: React.FC = () => {
     { name: 'Total Consultations', value: consultations.length, icon: <Video className="h-8 w-8 text-blue-600" /> },
     { name: 'Upcoming Appointments', value: consultations.filter(c => new Date(c.scheduledDate) > new Date()).length, icon: <Calendar className="h-8 w-8 text-green-600" /> },
     { name: 'Health Records', value: '12', icon: <FileText className="h-8 w-8 text-purple-600" /> },
-    { name: 'Messages', value: '5', icon: <MessageSquare className="h-8 w-8 text-orange-600" /> }
+    { name: 'Messages', value: messages.length, icon: <MessageSquare className="h-8 w-8 text-orange-600" />, action: () => setActiveTab('messages') }
   ];
 
   const recentActivities = [
@@ -192,8 +242,8 @@ const Dashboard: React.FC = () => {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     }`}
                 >
                   {tab.icon}<span>{tab.name}</span>
@@ -207,7 +257,7 @@ const Dashboard: React.FC = () => {
           <div className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {stats.map((stat, index) => (
-                <div key={index} className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
+                <div key={index} className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow" onClick={stat.action}>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-gray-600">{stat.name}</p>
@@ -313,7 +363,35 @@ const Dashboard: React.FC = () => {
 
         {/* Other Tabs */}
         {activeTab === 'health-records' && <div className="bg-white p-6 rounded-xl shadow-md text-center"><FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" /><p>Health Records will appear here.</p></div>}
-        {activeTab === 'messages' && <div className="bg-white p-6 rounded-xl shadow-md text-center"><MessageSquare className="h-16 w-16 text-gray-300 mx-auto mb-4" /><p>Messages will appear here.</p></div>}
+        {activeTab === 'messages' &&
+          <div className="bg-white p-6 rounded-xl shadow-md">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Messages</h2>
+            {messages.length > 0 ? (
+              <div className="space-y-4">
+                {messages.map((msg) => (
+                  <div key={msg._id} className="p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-semibold text-gray-900">{msg.name || 'Support'}</h3>
+                      <span className="text-xs text-gray-500">{new Date(msg.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <p className="text-gray-600 text-sm mb-2">{msg.message}</p>
+                    <div className="flex justify-between items-center">
+                      <span className={`text-xs px-2 py-1 rounded-full ${msg.status === 'read' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                        {msg.status || 'unread'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500">No messages found.</p>
+                <p className="text-sm text-gray-400">Messages from support or doctors will appear here.</p>
+              </div>
+            )}
+          </div>
+        }
         {activeTab === 'pharmacy' &&
           <div className="bg-white p-6 rounded-xl shadow-md text-center">
             <Pill className="h-16 w-16 text-gray-300 mx-auto mb-4" />
@@ -325,16 +403,107 @@ const Dashboard: React.FC = () => {
         }
         {activeTab === 'settings' &&
           <div className="bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Account Settings</h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Account Settings</h2>
+              {!isEditing ? (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <Edit2 className="h-4 w-4" />
+                  <span>Edit Profile</span>
+                </button>
+              ) : (
+                <div className="flex space-x-3">
+                  <button
+                    onClick={handleCancelEdit}
+                    className="flex items-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                    <span>Cancel</span>
+                  </button>
+                  <button
+                    onClick={handleSaveProfile}
+                    className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    <Save className="h-4 w-4" />
+                    <span>Save Changes</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
             <div className="space-y-6 max-w-lg mx-auto">
-              <div><label className="block text-sm font-medium text-gray-700 mb-2">Name</label><input type="text" value={user?.name || ''} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50" readOnly /></div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-2">Phone</label><input type="text" value={user?.phone || ''} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50" readOnly /></div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-2">Email</label><input type="email" value={user?.email || ''} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50" readOnly /></div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-2">Role</label><input type="text" value={user?.role || ''} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 capitalize" readOnly /></div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  readOnly={!isEditing}
+                  className={`w-full px-3 py-2 border rounded-lg transition-colors ${isEditing
+                    ? 'bg-white border-blue-400 ring-2 ring-blue-100'
+                    : 'bg-gray-50 border-gray-300'
+                    }`}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                <input
+                  type="text"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  readOnly={!isEditing}
+                  className={`w-full px-3 py-2 border rounded-lg transition-colors ${isEditing
+                    ? 'bg-white border-blue-400 ring-2 ring-blue-100'
+                    : 'bg-gray-50 border-gray-300'
+                    }`}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  readOnly={!isEditing}
+                  className={`w-full px-3 py-2 border rounded-lg transition-colors ${isEditing
+                    ? 'bg-white border-blue-400 ring-2 ring-blue-100'
+                    : 'bg-gray-50 border-gray-300'
+                    }`}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                <input
+                  type="text"
+                  name="role"
+                  value={formData.role}
+                  readOnly
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed capitalize"
+                  title="Role cannot be changed"
+                />
+              </div>
             </div>
           </div>
         }
       </div>
+      {/* <button
+        onClick={() => setIsVoiceAssistantOpen(!isVoiceAssistantOpen)}
+        className="fixed bottom-6 right-6 bg-gradient-to-r from-teal-600 to-emerald-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 z-40"
+        title="Open Voice Assistant"
+      >
+        <Mic className="h-6 w-6" />
+      </button> */}
+
+      {/* Voice Assistant Component */}
+      {/* <VoiceAssistant
+        isOpen={isVoiceAssistantOpen}
+        onClose={() => setIsVoiceAssistantOpen(false)}
+      /> */}
     </div>
   );
 };

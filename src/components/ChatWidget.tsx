@@ -86,36 +86,35 @@ const ChatWidget: React.FC = () => {
         setIsLoading(true);
 
         try {
-            // Basic Logic or API Call
-            let responseText = "I'm processing that...";
-
-            // Simulate API delay or fetch real backend
-            // Ideally, hit /api/symptom-check or a generalized chat endpoint
-            // For now, using the mock logic from VoiceAssistant but enhanced
-
+            // Basic Logic: Check for greetings locally for speed
             const lowerText = text.toLowerCase();
-            if (lowerText.includes('fever') || lowerText.includes('headache') || lowerText.includes('pain')) {
-                // Mocking the symptom checker response structure
-                if (lowerText.includes('fever')) responseText = "It sounds like you have a fever. Stay hydrated and rest. If it exceeds 101°F, consult a doctor.";
-                else if (lowerText.includes('headache')) responseText = "Headaches can be due to stress or dehydration. Try resting in a dark room.";
-                else responseText = "I understand you're in pain. Please consult a specialist if it persists.";
-
-                // Try connecting to real backend if available? 
-                // keeping it safe with mock logic for immediate responsiveness
-            } else if (lowerText.includes('appointment')) {
-                responseText = "You can book appointments in the Dashboard. Would you like me to redirect you?";
-            } else if (lowerText.includes('hello') || lowerText.includes('hi')) {
-                responseText = "Hi there! How can I help you with your health today?";
-            } else {
-                responseText = "I'm still learning. Could you please rephrase or ask about symptoms, appointments, or general health?";
-            }
-
-            setTimeout(() => {
-                const botMsg: Message = { id: (Date.now() + 1).toString(), text: responseText, sender: 'bot', timestamp: new Date() };
+            if (lowerText.match(/^(hi|hello|hey|greetings)/i)) {
+                const botMsg: Message = { id: (Date.now() + 1).toString(), text: "Hi there! How can I help you with your health today?", sender: 'bot', timestamp: new Date() };
                 setMessages(prev => [...prev, botMsg]);
                 setIsLoading(false);
-                speak(responseText);
-            }, 1000);
+                speak(botMsg.text);
+                return;
+            }
+
+            // Call Backend API
+            const response = await fetch('/api/chatbot/symptom-check', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ symptoms: text, language: 'en' })
+            });
+
+            let responseText = "I'm having trouble connecting to the server. Please try again later.";
+            if (response.ok) {
+                const data = await response.json();
+                responseText = data.response;
+            } else {
+                responseText = "I'm sorry, I couldn't process that right now.";
+            }
+
+            const botMsg: Message = { id: (Date.now() + 1).toString(), text: responseText, sender: 'bot', timestamp: new Date() };
+            setMessages(prev => [...prev, botMsg]);
+            setIsLoading(false);
+            speak(responseText);
 
         } catch (error) {
             console.error(error);

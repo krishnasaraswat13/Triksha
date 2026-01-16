@@ -4,7 +4,8 @@ import {
   MessageSquare, Pill, BarChart, Heart, Phone, Clock, Edit2, Save, X
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-// import VoiceAssistant from '../components/VoiceAssistant'; // Disabled in favor of global ChatWidget
+import DoctorDashboard from './DoctorDashboard';
+import AIAnalyzer from '../components/AIAnalyzer';
 
 // This allows TypeScript to recognize the global variables attached to the window object
 declare global {
@@ -40,6 +41,40 @@ const Dashboard: React.FC = () => {
   const jitsiContainerRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<any>(null);
 
+  // Booking Modal State
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [bookingData, setBookingData] = useState({
+    doctorId: '',
+    symptoms: '',
+    scheduledDate: '',
+    type: 'video'
+  });
+
+  const handleBookingSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('triksha_token');
+      const response = await fetch('/api/consultations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(bookingData)
+      });
+
+      if (response.ok) {
+        alert('Consultation booked successfully!');
+        setIsBookingModalOpen(false);
+        fetchUserData(); // Refresh list
+      } else {
+        alert('Failed to book consultation');
+      }
+    } catch (error) {
+      console.error('Booking error:', error);
+    }
+  };
+
   // Profile Edit State
   const [messages, setMessages] = useState<any[]>([]); // Messages State
   const [isEditing, setIsEditing] = useState(false);
@@ -49,43 +84,6 @@ const Dashboard: React.FC = () => {
     email: '',
     role: ''
   });
-
-  useEffect(() => {
-    if (user) {
-      setFormData({
-        name: user.name || '',
-        phone: user.phone || '',
-        email: user.email || '',
-        role: user.role || ''
-      });
-      fetchUserData();
-    }
-  }, [user]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSaveProfile = () => {
-    // Mock API call / Update Logic
-    setIsEditing(false);
-    // In a real app, calls updateProfile(formData) here
-    alert("Profile updated successfully! (Mock)");
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-    // Reset to original user data
-    if (user) {
-      setFormData({
-        name: user.name || '',
-        phone: user.phone || '',
-        email: user.email || '',
-        role: user.role || ''
-      });
-    }
-  };
 
   const fetchUserData = async () => {
     try {
@@ -113,14 +111,64 @@ const Dashboard: React.FC = () => {
         setMessages(userMessages.length > 0 ? userMessages : allMessages); // Fallback to all for demo
       }
 
-      // Mock Doctors data (replace with API if available)
-      setDoctors([
-        { _id: '1', name: 'Dr. Sarah Wilson' },
-        { _id: '2', name: 'Dr. James Chen' },
-        { _id: '3', name: 'Dr. Emily Parker' },
-      ]);
+      // Fetch Doctors
+      const doctorsResponse = await fetch('/api/users/doctors', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (doctorsResponse.ok) {
+        const doctorsData = await doctorsResponse.json();
+        setDoctors(doctorsData);
+      } else {
+        // Fallback mock if API fails
+        setDoctors([
+          { _id: '1', name: 'Dr. Sarah Wilson' },
+          { _id: '2', name: 'Dr. James Chen' }
+        ]);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || '',
+        phone: user.phone || '',
+        email: user.email || '',
+        role: user.role || ''
+      });
+      fetchUserData();
+    }
+  }, [user]);
+
+  // If user is a doctor, render the DoctorDashboard
+  if (user?.role === 'doctor') {
+    return <DoctorDashboard />;
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSaveProfile = () => {
+    // Mock API call / Update Logic
+    setIsEditing(false);
+    // In a real app, calls updateProfile(formData) here
+    alert("Profile updated successfully! (Mock)");
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    // Reset to original user data
+    if (user) {
+      setFormData({
+        name: user.name || '',
+        phone: user.phone || '',
+        email: user.email || '',
+        role: user.role || ''
+      });
     }
   };
 
@@ -174,10 +222,7 @@ const Dashboard: React.FC = () => {
     setIsCalling(true);
   };
 
-  const handleBookConsultation = () => {
-    const roomName = ` TrikshaConsultation_${Date.now()}`;
-    startJitsiCall(roomName, user?.name || 'Patient');
-  };
+
 
   const handleHangup = () => {
     if (apiRef.current) {
@@ -271,7 +316,7 @@ const Dashboard: React.FC = () => {
             <div className="bg-white p-6 rounded-xl shadow-md">
               <h2 className="text-xl font-bold text-gray-900 mb-6">Quick Actions</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <button onClick={handleBookConsultation} className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all">
+                <button onClick={() => setIsBookingModalOpen(true)} className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all">
                   <Video className="h-6 w-6 text-blue-600" /><span className="font-medium">Book Consultation</span>
                 </button>
                 <button onClick={() => window.location.href = 'https://www.1mg.com/drugs-all-medicines'} className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all">
@@ -284,6 +329,12 @@ const Dashboard: React.FC = () => {
                 </button>
               </div>
             </div>
+
+            {/* AI Analyzer */}
+            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+              <AIAnalyzer />
+            </div>
+
             <div className="bg-white p-6 rounded-xl shadow-md">
               <h2 className="text-xl font-bold text-gray-900 mb-6">Recent Activity</h2>
               <div className="space-y-4">
@@ -305,7 +356,7 @@ const Dashboard: React.FC = () => {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-900">Your Consultations</h2>
-              <button onClick={handleBookConsultation} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+              <button onClick={() => setIsBookingModalOpen(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                 Book New Consultation
               </button>
             </div>
@@ -314,7 +365,7 @@ const Dashboard: React.FC = () => {
                 <Video className="h-16 w-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No consultations yet</h3>
                 <p className="text-gray-600 mb-4">Book your first video consultation with a qualified doctor.</p>
-                <button onClick={handleBookConsultation} className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                <button onClick={() => setIsBookingModalOpen(true)} className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                   Book Consultation
                 </button>
               </div>
@@ -351,7 +402,10 @@ const Dashboard: React.FC = () => {
                         <p className="text-sm text-gray-600">General Medicine</p>
                       </div>
                     </div>
-                    <button onClick={handleBookConsultation} className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors text-sm">
+                    <button onClick={() => {
+                      setBookingData(prev => ({ ...prev, doctorId: doctor._id }));
+                      setIsBookingModalOpen(true);
+                    }} className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors text-sm">
                       Book Appointment
                     </button>
                   </div>
@@ -504,6 +558,56 @@ const Dashboard: React.FC = () => {
         isOpen={isVoiceAssistantOpen}
         onClose={() => setIsVoiceAssistantOpen(false)}
       /> */}
+      {/* Booking Modal */}
+      {isBookingModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Book Consultation</h2>
+              <button onClick={() => setIsBookingModalOpen(false)}><X className="h-6 w-6 text-gray-500" /></button>
+            </div>
+            <form onSubmit={handleBookingSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Select Doctor</label>
+                <select
+                  className="w-full border rounded-lg p-2 mt-1"
+                  required
+                  value={bookingData.doctorId}
+                  onChange={(e) => setBookingData({ ...bookingData, doctorId: e.target.value })}
+                >
+                  <option value="">Choose a doctor...</option>
+                  {doctors.map(doc => (
+                    <option key={doc._id} value={doc._id}>{doc.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Date & Time</label>
+                <input
+                  type="datetime-local"
+                  className="w-full border rounded-lg p-2 mt-1"
+                  required
+                  value={bookingData.scheduledDate}
+                  onChange={(e) => setBookingData({ ...bookingData, scheduledDate: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Symptoms</label>
+                <textarea
+                  className="w-full border rounded-lg p-2 mt-1"
+                  rows={3}
+                  placeholder="Describe your symptoms..."
+                  value={bookingData.symptoms}
+                  onChange={(e) => setBookingData({ ...bookingData, symptoms: e.target.value })}
+                ></textarea>
+              </div>
+              <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 font-medium">
+                Confirm Booking
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

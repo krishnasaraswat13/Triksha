@@ -21,12 +21,12 @@ const consultationSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['scheduled', 'ongoing', 'completed', 'cancelled'],
+    enum: ['scheduled', 'confirmed', 'ongoing', 'completed', 'cancelled'],
     default: 'scheduled'
   },
   type: {
     type: String,
-    enum: ['video', 'audio', 'chat'],
+    enum: ['video', 'audio', 'chat', 'clinic'],
     default: 'video'
   },
   symptoms: [String],

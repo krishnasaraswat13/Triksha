@@ -8,6 +8,8 @@ import consultationRoutes from './routes/consultations.js';
 import pharmacyRoutes from './routes/pharmacy.js';
 import contactRoutes from './routes/contact.js';
 import chatbotRoutes from './routes/chatbot.js';
+import aiRoutes from './routes/ai.js';
+import seedRoutes from './routes/seed.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 dotenv.config();
@@ -33,11 +35,13 @@ app.use('/api/consultations', consultationRoutes);
 app.use('/api/pharmacy', pharmacyRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/chatbot', chatbotRoutes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/seed', seedRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     message: 'NIRAMYA API is running successfully',
     database: dbConnection ? 'Connected' : 'Disconnected'
   });

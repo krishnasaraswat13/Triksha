@@ -13,7 +13,10 @@ router.post('/symptom-check', async (req, res) => {
         fever: "Based on your symptoms of fever, it's recommended to rest, stay hydrated, and monitor your temperature. If fever persists above 101°F for more than 3 days, please consult a doctor.",
         headache: "Headaches can be caused by various factors including stress, dehydration, or lack of sleep. Try resting in a quiet, dark room and staying hydrated. Consult a doctor if severe or persistent.",
         cough: "For cough symptoms, ensure you're staying hydrated and consider warm liquids. If cough persists for more than a week or is accompanied by fever, please consult a healthcare provider.",
-        default: "Thank you for sharing your symptoms. While I can provide general guidance, it's important to consult with a healthcare professional for proper diagnosis and treatment."
+        bloating: "Bloating can be caused by diet or digestion issues. Try to avoid heavy meals, eat slowly, and stay hydrated. Peppermint tea may help. If it persists or is painful, consult a doctor.",
+        loose_motion: "For loose motion, it's critical to prevent dehydration. Drink plenty of fluids (ORS, water, coconut water). Avoid dairy and spicy foods. If it lasts more than 24 hours, see a doctor immediately.",
+        stomach_pain: "Stomach pain has many causes. Avoid solid foods for a few hours and sip water. If the pain is severe, constant, or you have fever/vomiting, seek medical attention.",
+        default: "I understand you're feeling unwell. Based on your description, I recommend consulting a General Physician for a proper evaluation."
       },
       hi: {
         fever: "बुखार के लक्षणों के आधार पर, आराम करने, हाइड्रेटेड रहने और अपने तापमान की निगरानी करने की सलाह दी जाती है। यदि बुखार 3 दिनों से अधिक 101°F से ऊपर रहता है, तो कृपया डॉक्टर से सलाह लें।",
@@ -22,9 +25,13 @@ router.post('/symptom-check', async (req, res) => {
       }
     };
 
-    const symptomKey = symptoms.toLowerCase().includes('fever') ? 'fever' :
-                       symptoms.toLowerCase().includes('headache') ? 'headache' :
-                       symptoms.toLowerCase().includes('cough') ? 'cough' : 'default';
+    const lowerSymptoms = symptoms.toLowerCase();
+    const symptomKey = lowerSymptoms.includes('fever') ? 'fever' :
+      lowerSymptoms.includes('headache') ? 'headache' :
+        lowerSymptoms.includes('cough') ? 'cough' :
+          (lowerSymptoms.includes('bloating') || lowerSymptoms.includes('blouting')) ? 'bloating' :
+            (lowerSymptoms.includes('loose motion') || lowerSymptoms.includes('diarrhea')) ? 'loose_motion' :
+              lowerSymptoms.includes('stomach') ? 'stomach_pain' : 'default';
 
     const response = responses[language]?.[symptomKey] || responses.en.default;
 

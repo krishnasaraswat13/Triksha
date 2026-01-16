@@ -1,0 +1,14 @@
+Starting Seed Script... 
+📊 MongoDB Connected: 127.0.0.1
+🔌 Connected to MongoDB
+🧹 Cleared existing data
+👨‍⚕️ Created 2 Doctors
+Start creating patients...
+🏥 Created 5 Patients
+📅 Created 5 Consultations
+💊 Created 2 Pharmacies
+📋 Created 2 Health Records
+✅ Seeding Completed Successfully! Login details:
+   Doctor: rajesh@niramya.com / password123
+   Patient: rahul@example.com / password123
+Exit Code: 0 

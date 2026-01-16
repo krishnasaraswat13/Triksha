@@ -133,3 +133,4 @@ API requests are proxied (via vite.config.ts).
 </pre>
 
 Deploy Link :-  https://niramya.netlify.app/
+"# Triksha" 

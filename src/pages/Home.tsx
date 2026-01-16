@@ -49,17 +49,17 @@ const Home = () => {
                   Smart India Hackathon 2025 • Problem ID: 25018
                 </span> */}
                 <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-                  NIRAMYA
+                  TRIKSHA
                   <span className="block text-2xl md:text-3xl font-normal text-blue-200 mt-2">
-                    निरामय - Free from Illness
+                    त्रिक्षा - Your Health, Our Priority
                   </span>
                 </h1>
                 <p className="text-xl md:text-2xl text-blue-100 mb-8 leading-relaxed">
-                  A multilingual, AI-enabled telemedicine platform bringing quality 
+                  A multilingual, AI-enabled telemedicine platform bringing quality
                   healthcare to rural India through innovative technology.
                 </p>
               </div>
-              
+
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <Link
                   to="/register"
@@ -98,8 +98,8 @@ const Home = () => {
                 <div className="space-y-4">
                   <h3 className="text-xl font-semibold">Transforming Rural Healthcare</h3>
                   <p className="text-blue-100 leading-relaxed">
-                    Connecting patients in remote areas with qualified doctors through 
-                    secure video consultations, AI-powered symptom checking, and 
+                    Connecting patients in remote areas with qualified doctors through
+                    secure video consultations, AI-powered symptom checking, and
                     real-time pharmacy integration.
                   </p>
                 </div>
@@ -114,17 +114,17 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose NIRAMYA?
+              Why Choose TRIKSHA?
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Our comprehensive platform addresses the unique healthcare challenges 
+              Our comprehensive platform addresses the unique healthcare challenges
               faced by rural communities in India.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {highlights.map((highlight, index) => (
-              <div 
+              <div
                 key={index}
                 className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:scale-105"
               >
@@ -150,7 +150,7 @@ const Home = () => {
             Ready to Transform Healthcare Access?
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of patients and healthcare providers who trust NIRAMYA 
+            Join thousands of patients and healthcare providers who trust TRIKSHA
             for reliable, accessible healthcare solutions.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

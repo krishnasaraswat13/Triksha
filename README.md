@@ -11,7 +11,7 @@
 ## 🏥 Problem Statement
 - Rural areas in India have **limited access to doctors and hospitals**.  
 - People with **low literacy struggle with text-heavy apps**.  
-- Most telemedicine apps require **high bandwidth and strong internet**.  
+-# Triksha Telemedicine Platformpps require **high bandwidth and strong internet**.  
 - Early symptom detection and quick consultation can prevent **serious health issues**.  
 
 ---

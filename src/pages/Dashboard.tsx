@@ -44,7 +44,7 @@ const Dashboard: React.FC = () => {
 
   const fetchUserData = async () => {
     try {
-      const token = localStorage.getItem('niramya_token');
+      const token = localStorage.getItem('triksha_token');
       if (!token) {
         console.warn("No auth token found. User needs to be logged in to fetch data.");
         return;
@@ -57,11 +57,11 @@ const Dashboard: React.FC = () => {
         const consultationsData = await consultationsResponse.json();
         setConsultations(consultationsData);
       } else {
-         console.error("Failed to fetch consultations");
+        console.error("Failed to fetch consultations");
       }
 
       const doctorsResponse = await fetch('/api/users/doctors', {
-         headers: { 'Authorization':` Bearer ${token}` }
+        headers: { 'Authorization': ` Bearer ${token}` }
       });
       if (doctorsResponse.ok) {
         const doctorsData = await doctorsResponse.json();
@@ -92,7 +92,7 @@ const Dashboard: React.FC = () => {
     if (apiRef.current) {
       apiRef.current.dispose();
     }
-    
+
     loadJitsiScript(() => {
       if (jitsiContainerRef.current && window.JitsiMeetExternalAPI) {
         const domain = 'meet.jit.si';
@@ -115,7 +115,7 @@ const Dashboard: React.FC = () => {
         };
         const api = new window.JitsiMeetExternalAPI(domain, options);
         apiRef.current = api;
-        
+
         api.addListener('readyToClose', handleHangup);
         api.addListener('videoConferenceLeft', handleHangup);
       }
@@ -125,7 +125,7 @@ const Dashboard: React.FC = () => {
   };
 
   const handleBookConsultation = () => {
-    const roomName =` NiramyaConsultation_${Date.now()}`;
+    const roomName = ` TrikshaConsultation_${Date.now()}`;
     startJitsiCall(roomName, user?.name || 'Patient');
   };
 
@@ -163,7 +163,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         {isCalling && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
             <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 relative w-full max-w-4xl h-full max-h-[90vh]">
@@ -191,11 +191,10 @@ const Dashboard: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
-                    activeTab === tab.id
+                  className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${activeTab === tab.id
                       ? 'border-blue-500 text-blue-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
+                    }`}
                 >
                   {tab.icon}<span>{tab.name}</span>
                 </button>
@@ -225,13 +224,13 @@ const Dashboard: React.FC = () => {
                 <button onClick={handleBookConsultation} className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all">
                   <Video className="h-6 w-6 text-blue-600" /><span className="font-medium">Book Consultation</span>
                 </button>
-                <button onClick={() => window.location.href='https://www.1mg.com/drugs-all-medicines'} className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all">
-                    <Pill className="h-6 w-6 text-purple-600" />
-                    <span className="font-medium">Find Medicine</span>
+                <button onClick={() => window.location.href = 'https://www.1mg.com/drugs-all-medicines'} className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all">
+                  <Pill className="h-6 w-6 text-purple-600" />
+                  <span className="font-medium">Find Medicine</span>
                 </button>
-                <button onClick={() => window.location.href='tel:101'} className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-orange-50 hover:border-orange-300 transition-all">
-                    <Phone className="h-6 w-6 text-orange-600" />
-                    <span className="font-medium">Emergency Call</span>
+                <button onClick={() => window.location.href = 'tel:101'} className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-orange-50 hover:border-orange-300 transition-all">
+                  <Phone className="h-6 w-6 text-orange-600" />
+                  <span className="font-medium">Emergency Call</span>
                 </button>
               </div>
             </div>
@@ -275,16 +274,15 @@ const Dashboard: React.FC = () => {
                   <div key={consultation._id} className="bg-white p-6 rounded-xl shadow-md">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-semibold text-gray-900">Dr. {consultation.doctorId?.name || 'Unknown'}</h3>
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        consultation.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
-                      }`}>{consultation.status}</span>
+                      <span className={`px-2 py-1 text-xs rounded-full ${consultation.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                        }`}>{consultation.status}</span>
                     </div>
                     <p className="text-sm text-gray-600 mb-2"><Clock className="h-4 w-4 inline mr-1" />{new Date(consultation.scheduledDate).toLocaleString()}</p>
                     <p className="text-sm text-gray-600 mb-4">Type: {consultation.type}</p>
                     {consultation.status === 'scheduled' && (
-                      <button 
+                      <button
                         className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                        onClick={() => startJitsiCall(`NiramyaConsultation_${consultation._id}`, user?.name || 'Patient')}
+                        onClick={() => startJitsiCall(`TrikshaConsultation_${consultation._id}`, user?.name || 'Patient')}
                       >Join Consultation</button>
                     )}
                   </div>
@@ -316,25 +314,25 @@ const Dashboard: React.FC = () => {
         {/* Other Tabs */}
         {activeTab === 'health-records' && <div className="bg-white p-6 rounded-xl shadow-md text-center"><FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" /><p>Health Records will appear here.</p></div>}
         {activeTab === 'messages' && <div className="bg-white p-6 rounded-xl shadow-md text-center"><MessageSquare className="h-16 w-16 text-gray-300 mx-auto mb-4" /><p>Messages will appear here.</p></div>}
-        {activeTab === 'pharmacy' && 
-            <div className="bg-white p-6 rounded-xl shadow-md text-center">
-                <Pill className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-600 mb-4">Search for medicines and find nearby pharmacies.</p>
-                <button onClick={() => window.location.href='https://www.1mg.com/drugs-all-medicines'} className="mt-4 bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors">
-                    Find Medicine
-                </button>
-            </div>
+        {activeTab === 'pharmacy' &&
+          <div className="bg-white p-6 rounded-xl shadow-md text-center">
+            <Pill className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-600 mb-4">Search for medicines and find nearby pharmacies.</p>
+            <button onClick={() => window.location.href = 'https://www.1mg.com/drugs-all-medicines'} className="mt-4 bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+              Find Medicine
+            </button>
+          </div>
         }
-        {activeTab === 'settings' && 
-            <div className="bg-white p-6 rounded-xl shadow-md">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Account Settings</h2>
-                <div className="space-y-6 max-w-lg mx-auto">
-                    <div><label className="block text-sm font-medium text-gray-700 mb-2">Name</label><input type="text" value={user?.name || ''} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50" readOnly /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-2">Phone</label><input type="text" value={user?.phone || ''} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50" readOnly /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-2">Email</label><input type="email" value={user?.email || ''} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50" readOnly /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-2">Role</label><input type="text" value={user?.role || ''} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 capitalize" readOnly /></div>
-                </div>
+        {activeTab === 'settings' &&
+          <div className="bg-white p-6 rounded-xl shadow-md">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Account Settings</h2>
+            <div className="space-y-6 max-w-lg mx-auto">
+              <div><label className="block text-sm font-medium text-gray-700 mb-2">Name</label><input type="text" value={user?.name || ''} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50" readOnly /></div>
+              <div><label className="block text-sm font-medium text-gray-700 mb-2">Phone</label><input type="text" value={user?.phone || ''} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50" readOnly /></div>
+              <div><label className="block text-sm font-medium text-gray-700 mb-2">Email</label><input type="email" value={user?.email || ''} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50" readOnly /></div>
+              <div><label className="block text-sm font-medium text-gray-700 mb-2">Role</label><input type="text" value={user?.role || ''} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 capitalize" readOnly /></div>
             </div>
+          </div>
         }
       </div>
     </div>

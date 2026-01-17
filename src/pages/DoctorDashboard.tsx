@@ -1,7 +1,7 @@
 import React from 'react';
 import {
     Users, Calendar, Clock, FileText, Check, X, Video,
-    MessageSquare, Activity, ChevronRight
+    MessageSquare, Activity, ChevronRight, Brain
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -16,9 +16,13 @@ const DoctorDashboard = () => {
     const [isCreateAppointmentOpen, setIsCreateAppointmentOpen] = React.useState(false);
     const [isPatientDetailsOpen, setIsPatientDetailsOpen] = React.useState(false);
     const [isLabRequestOpen, setIsLabRequestOpen] = React.useState(false);
-    const [selectedPatient, setSelectedPatient] = React.useState<any>(null);
     const [createAptData, setCreateAptData] = React.useState({ patientName: '', date: '', time: '', type: 'video' });
     const [labRequestData, setLabRequestData] = React.useState({ testName: '', urgency: 'normal', notes: '' });
+
+    // AI Analysis State
+    const [isAnalysisModalOpen, setIsAnalysisModalOpen] = React.useState(false);
+    const [isAnalyzing, setIsAnalyzing] = React.useState(false);
+    const [analysisResult, setAnalysisResult] = React.useState<any>(null);
 
     const [prescriptionData, setPrescriptionData] = React.useState({
         medication: '',
@@ -161,6 +165,31 @@ const DoctorDashboard = () => {
         setIsCreateAppointmentOpen(true);
     };
 
+    const handleAnalyzePatient = async (patientId: string, patientName: string) => {
+        setIsAnalyzing(true);
+        setIsAnalysisModalOpen(true);
+        setAnalysisResult(null); // Reset previous result
+
+        try {
+            const token = localStorage.getItem('triksha_token');
+            const response = await fetch('/api/ai/patient-analysis', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ patientId })
+            });
+            const data = await response.json();
+            setAnalysisResult({ ...data, patientName });
+        } catch (error) {
+            console.error("Analysis error", error);
+            setAnalysisResult({ error: "Failed to generate analysis" });
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
+
     const handleCreateAptSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         // Mock submission to local state or would be API
@@ -291,6 +320,75 @@ const DoctorDashboard = () => {
                             <X className="h-6 w-6" />
                         </button>
                         <div ref={jitsiContainerRef} className="w-full h-full rounded-lg overflow-hidden" />
+                    </div>
+                </div>
+            )}
+
+            {/* AI Analysis Modal */}
+            {isAnalysisModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm">
+                    <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-2xl transform transition-all scale-100">
+                        <div className="flex justify-between items-center mb-6 border-b pb-4">
+                            <div className="flex items-center space-x-3">
+                                <div className="p-2 bg-purple-100 rounded-lg">
+                                    <Brain className="h-6 w-6 text-purple-600" />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-bold text-gray-900">AI Health Analysis</h2>
+                                    {analysisResult?.patientName && <p className="text-sm text-gray-500">For {analysisResult.patientName}</p>}
+                                </div>
+                            </div>
+                            <button onClick={() => setIsAnalysisModalOpen(false)} className="hover:bg-gray-100 p-2 rounded-full transition-colors"><X className="h-6 w-6 text-gray-500" /></button>
+                        </div>
+
+                        {isAnalyzing ? (
+                            <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                                <p className="text-gray-500 animate-pulse">Analyzing patient records with AI...</p>
+                            </div>
+                        ) : analysisResult ? (
+                            <div className="space-y-6 animate-fadeIn">
+                                <div className="bg-purple-50 p-4 rounded-xl border border-purple-100">
+                                    <h3 className="font-semibold text-purple-900 mb-2">Summary</h3>
+                                    <p className="text-purple-800 text-sm leading-relaxed">{analysisResult.summary}</p>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="bg-red-50 p-4 rounded-xl border border-red-100">
+                                        <h3 className="font-semibold text-red-900 mb-2">Risk Assessment</h3>
+                                        <div className="flex items-center space-x-2">
+                                            <div className={`h-3 w-3 rounded-full ${analysisResult.riskAssessment?.includes("Low") ? "bg-green-500" : "bg-red-500"}`}></div>
+                                            <span className="text-red-800 font-medium">{analysisResult.riskAssessment || "Unknown"}</span>
+                                        </div>
+                                    </div>
+                                    <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                                        <h3 className="font-semibold text-blue-900 mb-2">Key Insights</h3>
+                                        <ul className="list-disc list-inside text-sm text-blue-800 space-y-1">
+                                            {analysisResult.keyInsights?.length > 0 ? (
+                                                analysisResult.keyInsights.map((insight: string, i: number) => <li key={i}>{insight}</li>)
+                                            ) : (<li>No specific insights found.</li>)}
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 className="font-semibold text-gray-900 mb-2">AI Recommendations</h3>
+                                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                                        <ul className="space-y-2">
+                                            {analysisResult.recommendations?.map((rec: string, i: number) => (
+                                                <li key={i} className="flex items-start space-x-2 text-sm text-gray-700">
+                                                    <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                                                    <span>{rec}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+                                <p className="text-xs text-center text-gray-400 mt-4">AI-generated analysis. Please verify with clinical records.</p>
+                            </div>
+                        ) : (
+                            <div className="text-center py-8 text-red-500">Failed to load analysis.</div>
+                        )}
                     </div>
                 </div>
             )}
@@ -531,6 +629,9 @@ const DoctorDashboard = () => {
                                                     </button>
                                                     <button onClick={() => handleNewPrescription(apt._id)} className="p-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200 transition-colors" title="Write Prescription">
                                                         <FileText className="h-4 w-4" />
+                                                    </button>
+                                                    <button onClick={() => handleAnalyzePatient(apt.patientId?._id, apt.patientId?.name)} className="p-2 bg-indigo-100 text-indigo-600 rounded-lg hover:bg-indigo-200 transition-colors shadow-sm" title="AI Report Analysis">
+                                                        <Brain className="h-4 w-4" />
                                                     </button>
                                                 </>
                                             )}

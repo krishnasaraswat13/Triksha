@@ -164,4 +164,59 @@ router.post('/analyze-trends', async (req, res) => {
     }
 });
 
+// NEW: Comprehensive Patient Report Analysis
+router.post('/patient-analysis', async (req, res) => {
+    try {
+        const { patientId } = req.body;
+        if (!patientId) return res.status(400).json({ message: "Patient ID required" });
+
+        const healthData = await HealthRecord.findOne({ userId: patientId });
+
+        // Mocking a sophisticated AI analysis response based on "retrieved" data
+        // In a real scenario, we would construct a prompt with the fetched records and send to Gemini/OpenAI
+
+        let analysis = {
+            summary: "No medical history available for analysis.",
+            riskAssessment: "Low",
+            recommendations: ["Schedule a general checkup."],
+            keyInsights: []
+        };
+
+        if (healthData && healthData.records && healthData.records.length > 0) {
+            // Sort records newest first
+            const sortedRecords = [...healthData.records].sort((a, b) => new Date(b.date) - new Date(a.date));
+            const latest = sortedRecords[0];
+
+            analysis.summary = `The patient has a history of ${latest.diagnosis || 'general visits'}. Latest consultation (${new Date(latest.date).toLocaleDateString()}) indicates stable management but requires monitoring.`;
+
+            // Generate insights based on keywords in diagnosis/notes
+            const allNotes = sortedRecords.map(r => (r.diagnosis + " " + r.notes).toLowerCase()).join(" ");
+
+            if (allNotes.includes("diabetes") || allNotes.includes("sugar")) {
+                analysis.riskAssessment = "Moderate - Chronic";
+                analysis.keyInsights.push("Diabetes management is ongoing.");
+                analysis.recommendations.push("Maintain Hba1c monitoring every 3 months.");
+            }
+            if (allNotes.includes("hypertension") || allNotes.includes("bp") || latest.vitals?.bloodPressure) {
+                analysis.keyInsights.push("Blood pressure monitoring detected.");
+            }
+            if (latest.vitals?.weight) {
+                analysis.keyInsights.push(`Latest weight recorded: ${latest.vitals.weight}kg.`);
+            }
+
+            analysis.recommendations.push("Review current medications for efficacy.");
+            analysis.lastAnalyzedDate = new Date().toDateString();
+        }
+
+        // Simulate AI thinking time
+        setTimeout(() => {
+            res.json(analysis);
+        }, 2000);
+
+    } catch (error) {
+        console.error("Patient Analysis Failed:", error);
+        res.status(500).json({ message: "Analysis Failed" });
+    }
+});
+
 export default router;

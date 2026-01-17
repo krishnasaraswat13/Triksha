@@ -87,38 +87,75 @@ router.post('/symptom-check', async (req, res) => {
     }
 
     // 3. Fallback Mock (If no API key)
-    console.log("Using Mock AI (No GEMINI_API_KEY)");
+    console.log("Using Mock AI (No GEMINI_API_KEY) - Enhanced Logic");
 
-    const fallbackResponses = {
-      'en': "I understand you're feeling unwell. Please consult a doctor.",
-      'hi': "मैं समझता हूँ कि आप अस्वस्थ महसूस कर रहे हैं। कृपया डॉक्टर से सलाह लें।",
-      'bn': "আমি বুঝতে পারছি আপনি অসুস্থ বোধ করছেন। দয়া করে একজন ডাক্তারের সাথে পরামর্শ করুন।",
-      'te': "మీరు అనారోగ్యంతో ఉన్నారని నాకు అర్థమైంది. దయచేసి డాక్టర్‌ని సంప్రదించండి.",
-      'ta': "நீங்கள் உடல்நிலை சரியில்லாமல் இருப்பதை நான் புரிந்துகொள்கிறேன். தயவுசெய்து மருத்துவரை அணுகவும்.",
-      'mr': "मला समजले आहे की तुम्हाला बरे वाटत नाहीये. कृपया डॉक्टरांचा सल्ला घ्या.",
-      'gu': "હું સમજું છું કે તમે અસ્વસ્થ અનુભવો છો. મહેરબાની કરીને ડૉક્ટરની સલાહ લો.",
-      'kn': "ನೀವು ಅನಾರೋಗ್ಯದಿಂದ ಬಳಲುತ್ತಿದ್ದೀರಿ ಎಂದು ನನಗೆ ಅರ್ಥವಾಗಿದೆ. ದಯವಿಟ್ಟು ವೈದ್ಯರನ್ನು ಸಂಪರ್ಕಿಸಿ.",
-      'ml': "നിങ്ങൾക്ക് സുഖമില്ലെന്ന് എനിക്ക് മനസ്സിലായി. ദയাকರಿ ഒരു ഡോക്ടറെ സമീപിക്കുക."
+    // Expanded Medical Knowledge Base for Demo/Offline Mode
+    const medicalKnowledgeBase = {
+      'back': {
+        keywords: ['back', 'spine', 'number', 'lumber'],
+        responses: {
+          'en': "For lower back pain radiating to the leg (Sciatica), possible causes include herniated disc or muscle strain. \n\n**Action Plan:**\n1. Rest and avoid heavy lifting.\n2. Apply hot/cold packs.\n3. Consult an Orthopedist or Neurologist for an MRI if pain persists.",
+          'hi': "निचले हिस्से में दर्द (Sciatica) के लिए, संभावित कारणों में हर्नियाटेड डिस्क या मांसपेशियों में खिंचाव शामिल हो सकता है। \n\n**कार्य योजना:**\n1. आराम करें और भारी वजन उठाने से बचें।\n2. गर्म/ठंडे पैक लगाएं।\n3. यदि दर्द ठीक नहीं होता है, तो आर्थोपेडिस्ट से सलाह लें।",
+          // Fallback for others to English regarding context, can be expanded
+          'default': "Back pain generally requires rest. Please consult a specialist."
+        }
+      },
+      'fever': {
+        keywords: ['fever', 'temperature', 'hot', 'cold'],
+        responses: {
+          'en': "For fever:\n1. Stay hydrated.\n2. Rest adequately.\n3. Take paracetamol if temp > 100°F (Consult doctor for dosage).\n4. Seek immediate care if accompanied by breathing difficulty.",
+          'hi': "बुखार के लिए:\n1. हाइड्रेटेड रहें।\n2. पर्याप्त आराम करें।\n3. यदि तापमान 100°F से अधिक है तो पैरासिटामोल लें (खुराक के लिए डॉक्टर से पूछें)।"
+        }
+      },
+      'headache': {
+        keywords: ['headache', 'migraine', 'head'],
+        responses: {
+          'en': "Headache management:\n1. Drink water (dehydration is a common cause).\n2. Rest in a dark, quiet room.\n3. Check blood pressure.\n4. Consult a doctor if it's severe or sudden.",
+          'hi': "सिरदर्द प्रबंधन:\n1. पानी पिएं (निर्जलीकरण एक सामान्य कारण है)।\n2. अंधेरे, शांत कमरे में आराम करें।\n3. रक्तचाप की जाँच करें।"
+        }
+      },
+      'bp': {
+        keywords: ['bp', 'blood pressure', 'hypertension'],
+        responses: {
+          'en': "Blood Pressure requires regular monitoring. Reduce salt intake, exercise regularly, and take prescribed medication. Normal range is typically around 120/80 mmHg.",
+          'hi': "रक्तचाप की नियमित निगरानी की आवश्यकता होती है। नमक का सेवन कम करें, नियमित व्यायाम करें।"
+        }
+      }
     };
 
-    // Extract basic language code (e.g., 'hi-IN' -> 'hi')
     const langCode = language.split('-')[0];
-    let responseText = fallbackResponses[langCode] || fallbackResponses['en'];
+    let responseText = "";
 
-    // Simple Mock RAG Logic (Only supports English keywords for now for simplicity, or basic exact match)
+    // Check Knowledge Base
     const lowerQuery = symptoms.toLowerCase();
-    if (lowerQuery.includes('last') || lowerQuery.includes('report') || lowerQuery.includes('record')) {
-      // Mock RAG response is hard to localize without a huge map, updating just the not found message
-      if (userRecords.length > 0) {
-        const last = userRecords[userRecords.length - 1];
-        responseText = `Based on your last record from ${new Date(last.date).toLocaleDateString()}, your diagnosis was ${last.diagnosis} with blood pressure ${last.vitals?.bloodPressure || 'not recorded'}.`;
-      } else {
-        if (langCode === 'hi') responseText = "मैंने आपके रिकॉर्ड की जाँच की, लेकिन मुझे कोई हालिया डेटा नहीं मिला।";
-        else responseText = "I checked your records, but I couldn't find any recent data to answer that.";
+    for (const [key, data] of Object.entries(medicalKnowledgeBase)) {
+      if (data.keywords.some(k => lowerQuery.includes(k))) {
+        responseText = data.responses[langCode] || data.responses['en'] || data.responses['default'];
+        break;
       }
-    } else if (lowerQuery.includes('fever')) {
-      if (langCode === 'hi') responseText = "बुखार के लिए, हाइड्रेटेड रहें और आराम करें। यदि यह 101°F से अधिक है, तो डॉक्टर को दिखाएं।";
-      else responseText = "For fever, stay hydrated and rest. If it exceeds 101°F, see a doctor.";
+    }
+
+    // Default Fallbacks if no keyword matched
+    if (!responseText) {
+      if (lowerQuery.includes('last') || lowerQuery.includes('report') || lowerQuery.includes('record')) {
+        if (userRecords.length > 0) {
+          const last = userRecords[userRecords.length - 1];
+          responseText = `Based on your last record from ${new Date(last.date).toLocaleDateString()}, your diagnosis was ${last.diagnosis}.`;
+        } else {
+          if (langCode === 'hi') responseText = "मैंने आपके रिकॉर्ड की जाँच की, लेकिन मुझे कोई हालिया डेटा नहीं मिला।";
+          else responseText = "I checked your records, but I couldn't find any recent data to answer that.";
+        }
+      } else {
+        const genericFallbacks = {
+          'en': "I understand you're concerned. While I can't provide a specific diagnosis right now, I recommend consulting a General Physician for a thorough checkup.",
+          'hi': "मैं समझता हूँ कि आप चिंतित हैं। मैं अभी विशिष्ट निदान प्रदान नहीं कर सकता, लेकिन मैं आपको सामान्य चिकित्सक से परामर्श करने की सलाह देता हूँ。",
+          'bn': "আমি বুঝতে পারছি আপনি চিন্তিত। আমি এখন নির্দিষ্ট রোগ নির্ণয় করতে পারছি না, তবে আমি আপনাকে একজন সাধারণ চিকিৎসকের সাথে পরামর্শ করার পরামর্শ দিচ্ছি।",
+          'te': "మీరు ఆందోళన చెందుతున్నారని నాకు అర్థమైంది. నేను ఇప్పుడు నిర్దిష్ట రోగ నిర్ధారణను అందించలేను, దయచేసి డాక్టర్‌ని సంప్రదించండి.",
+          'ta': "நீங்கள் கவலைப்படுகிறீர்கள் என்பதை நான் புரிந்துகொள்கிறேன். தயவுசெய்து மருத்துவரை அணுகவும்.",
+          'ml': "നിങ്ങൾ ആശങ്കാകുലരാണെന്ന് എനിക്കറിയാം. ദയവായി ഒരു ഡോക്ടറെ സമീപിക്കുക."
+        };
+        responseText = genericFallbacks[langCode] || genericFallbacks['en'];
+      }
     }
 
     res.json({

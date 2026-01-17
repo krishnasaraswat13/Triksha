@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageSquare, X, Send, Mic, Volume2, Loader, Maximize2, Minimize2 } from 'lucide-react';
+import { MessageSquare, X, Send, Mic, Volume2, Loader, Maximize2, Minimize2, Globe } from 'lucide-react';
 
 interface Message {
     id: string;
@@ -7,6 +7,18 @@ interface Message {
     sender: 'user' | 'bot';
     timestamp: Date;
 }
+
+const LANGUAGES = [
+    { code: 'en-IN', name: 'English' },
+    { code: 'hi-IN', name: 'Hindi' },
+    { code: 'bn-IN', name: 'Bengali' },
+    { code: 'te-IN', name: 'Telugu' },
+    { code: 'ta-IN', name: 'Tamil' },
+    { code: 'mr-IN', name: 'Marathi' },
+    { code: 'gu-IN', name: 'Gujarati' },
+    { code: 'kn-IN', name: 'Kannada' },
+    { code: 'ml-IN', name: 'Malayalam' }
+];
 
 const ChatWidget: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -23,6 +35,7 @@ const ChatWidget: React.FC = () => {
     const [isListening, setIsListening] = useState(false);
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedLanguage, setSelectedLanguage] = useState('en-IN');
 
     const recognitionRef = useRef<any>(null);
     const synthRef = useRef<SpeechSynthesis | null>(null);
@@ -40,7 +53,7 @@ const ChatWidget: React.FC = () => {
             recognitionRef.current = new SpeechRecognition();
             recognitionRef.current.continuous = false;
             recognitionRef.current.interimResults = false;
-            recognitionRef.current.lang = 'en-US';
+            recognitionRef.current.lang = selectedLanguage;
 
             recognitionRef.current.onresult = (event: any) => {
                 const text = event.results[0][0].transcript;
@@ -56,14 +69,17 @@ const ChatWidget: React.FC = () => {
         if ('speechSynthesis' in window) {
             synthRef.current = window.speechSynthesis;
         }
-    }, []);
+    }, [selectedLanguage]); // Re-init when language changes
 
     const toggleListening = () => {
         if (isListening) {
             recognitionRef.current?.stop();
         } else {
-            recognitionRef.current?.start();
-            setIsListening(true);
+            if (recognitionRef.current) {
+                recognitionRef.current.lang = selectedLanguage;
+                recognitionRef.current.start();
+                setIsListening(true);
+            }
         }
     };
 
@@ -71,6 +87,7 @@ const ChatWidget: React.FC = () => {
         if (synthRef.current) {
             synthRef.current.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = selectedLanguage;
             utterance.onstart = () => setIsSpeaking(true);
             utterance.onend = () => setIsSpeaking(false);
             synthRef.current.speak(utterance);
@@ -89,8 +106,23 @@ const ChatWidget: React.FC = () => {
         try {
             // Basic Logic: Check for greetings locally for speed
             const lowerText = text.toLowerCase();
-            if (lowerText.match(/^(hi|hello|hey|greetings)/i)) {
-                const botMsg: Message = { id: (Date.now() + 1).toString(), text: "Hi there! How can I help you with your health today?", sender: 'bot', timestamp: new Date() };
+            if (lowerText.match(/^(hi|hello|hey|greetings|namaste|vanakkam|namaskaram)/i)) {
+                const greetings: { [key: string]: string } = {
+                    'en-IN': "Hi there! How can I help you with your health today?",
+                    'hi-IN': "नमस्ते! मैं आपकी स्वास्थ्य संबंधी सहायता कैसे कर सकता हूँ?",
+                    'bn-IN': "হ্যালো! আজ আমি কীভাবে আপনার স্বাস্থ্যের বিষয়ে সাহায্য করতে পারি?",
+                    'te-IN': "హలో! ఈ రోజు మీ ఆరోగ్యానికి సంబంధించి నేను మీకు ఎలా సహాయపడగలను?",
+                    'ta-IN': "வணக்கம்! இன்று உங்கள் ஆரோக்கியத்திற்கு நான் எவ்வாறு உதவ முடியும்?",
+                    'mr-IN': "नमस्कार! आज मी तुम्हाला तुमच्या आरोग्याबाबत कशी मदत करू शकतो?",
+                    'gu-IN': "હેલો! આજે હું તમારા સ્વાસ્થ્ય માટે કેવી રીતે મદદ કરી શકું?",
+                    'kn-IN': "ಹಲೋ! ಇಂದು ನಿಮ್ಮ ಆರೋಗ್ಯಕ್ಕೆ ಸಂಬಂಧಿಸಿದಂತೆ ನಾನು ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಬಲ್ಲೆ?",
+                    'ml-IN': "ഹലോ! ഇന്ന് നിങ്ങളുടെ ആരോഗ്യകാര്യത്തിൽ എനിക്ക് എങ്ങനെ സഹായിക്കാനാകും?",
+                    'ur-IN': "ہیلو! میں آج آپ کی صحت کے حوالے سے کیسے مدد کر سکتا ہوں؟"
+                };
+
+                let greeting = greetings[selectedLanguage] || greetings['en-IN'];
+
+                const botMsg: Message = { id: (Date.now() + 1).toString(), text: greeting, sender: 'bot', timestamp: new Date() };
                 setMessages(prev => [...prev, botMsg]);
                 setIsLoading(false);
                 speak(botMsg.text);
@@ -105,7 +137,7 @@ const ChatWidget: React.FC = () => {
                     'Content-Type': 'application/json',
                     ...(token ? { 'Authorization': `Bearer ${token}` } : {})
                 },
-                body: JSON.stringify({ symptoms: text, language: 'en' })
+                body: JSON.stringify({ symptoms: text, language: selectedLanguage })
             });
 
             let responseText = "I'm having trouble connecting to the server. Please try again later.";
@@ -136,8 +168,7 @@ const ChatWidget: React.FC = () => {
             {/* Toggle Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`fixed bottom-6 right-6 z-[9999] p-4 rounded-full shadow-xl transition-all duration-300 transform hover:scale-105 ${isOpen ? 'bg-red-500 rotate-90' : 'bg-[#002B4E]' // Dark blue like the agent header
-                    } text-white`}
+                className={`fixed bottom-6 right-6 z-[9999] p-4 rounded-full shadow-xl transition-all duration-300 transform hover:scale-105 ${isOpen ? 'bg-red-500 rotate-90' : 'bg-[#002B4E]'} text-white`}
             >
                 {isOpen ? <X className="h-6 w-6" /> : <MessageSquare className="h-6 w-6" />}
             </button>
@@ -165,9 +196,27 @@ const ChatWidget: React.FC = () => {
                             <div className={`${isFullScreen ? 'bg-teal-500/20' : 'bg-teal-500'} p-1.5 rounded-full`}>
                                 <MessageSquare className={`h-4 w-4 ${isFullScreen ? 'text-teal-400' : 'text-white'}`} />
                             </div>
-                            <h3 className="font-semibold text-lg tracking-wide">Health Agent <span className="text-xs font-normal opacity-70 ml-2">AI Powered</span></h3>
+                            <div className="flex flex-col">
+                                <h3 className="font-semibold text-lg tracking-wide leading-none">Health Agent</h3>
+                                <span className="text-[10px] opacity-70">AI Powered</span>
+                            </div>
                         </div>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-1">
+                            {/* Language Selector */}
+                            <div className="flex items-center bg-white/10 rounded-lg px-2 py-1 mr-1">
+                                <Globe className="h-3 w-3 mr-1 opacity-70" />
+                                <select
+                                    value={selectedLanguage}
+                                    onChange={(e) => setSelectedLanguage(e.target.value)}
+                                    className="bg-transparent border-none text-xs text-white focus:ring-0 cursor-pointer outline-none option:text-black"
+                                    style={{ paddingRight: 0, paddingLeft: 0, paddingBottom: 0, paddingTop: 0 }}
+                                >
+                                    {LANGUAGES.map(lang => (
+                                        <option key={lang.code} value={lang.code} className="text-black">{lang.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
                             <button
                                 onClick={() => setIsFullScreen(!isFullScreen)}
                                 className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
@@ -178,6 +227,7 @@ const ChatWidget: React.FC = () => {
                             <button
                                 onClick={() => setIsOpen(false)}
                                 className="p-1.5 hover:bg-red-500/80 hover:text-white rounded-lg transition-colors"
+                                title="Close"
                             >
                                 <X className="h-5 w-5" />
                             </button>
@@ -239,7 +289,7 @@ const ChatWidget: React.FC = () => {
                                 value={inputText}
                                 onChange={(e) => setInputText(e.target.value)}
                                 onKeyPress={handleKeyPress}
-                                placeholder="Ask anything about your health..."
+                                placeholder={isListening ? "Listening..." : "Ask anything about your health..."}
                                 className={`flex-1 bg-transparent border-none focus:ring-0 text-sm ${isFullScreen ? 'text-white placeholder-slate-500' : 'text-gray-900 placeholder-gray-400'}`}
                             />
                             {inputText ? (
@@ -251,7 +301,9 @@ const ChatWidget: React.FC = () => {
                                 </button>
                             ) : (
                                 isSpeaking ? (
-                                    <Volume2 className="h-5 w-5 text-teal-500 animate-pulse" />
+                                    <button onClick={() => { synthRef.current?.cancel(); setIsSpeaking(false); }}>
+                                        <Volume2 className="h-5 w-5 text-teal-500 animate-pulse" />
+                                    </button>
                                 ) : <div className="w-8"></div>
                             )}
                         </div>

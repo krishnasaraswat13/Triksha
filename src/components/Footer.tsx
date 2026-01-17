@@ -48,9 +48,17 @@ const Footer = () => {
                 <Mail className="h-5 w-5 text-teal-400" />
                 <span className="text-gray-300">contact@triksha.com</span>
               </li>
-              <li className="flex items-center space-x-3">
-                <Phone className="h-5 w-5 text-green-400" />
-                <span className="text-gray-300">+91 98765 43210</span>
+              <li>
+                <a
+                  href="https://wa.me/918439527105"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center space-x-3 group hover:bg-white/5 p-2 -ml-2 rounded-lg transition-all"
+                  title="Chat on WhatsApp"
+                >
+                  <Phone className="h-5 w-5 text-green-400 group-hover:scale-110 transition-transform" />
+                  <span className="text-gray-300 group-hover:text-green-400 transition-colors font-medium">+91 84395 27105</span>
+                </a>
               </li>
               <li className="flex items-center space-x-3">
                 <MapPin className="h-5 w-5 text-red-400" />

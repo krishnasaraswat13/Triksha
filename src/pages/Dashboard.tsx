@@ -32,12 +32,11 @@ type Doctor = {
 };
 
 const Dashboard: React.FC = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [isCalling, setIsCalling] = useState(false);
-  // const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
   const jitsiContainerRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<any>(null);
 
@@ -48,6 +47,17 @@ const Dashboard: React.FC = () => {
     symptoms: '',
     scheduledDate: '',
     type: 'video'
+  });
+
+  // Health Records State
+  const [healthRecords, setHealthRecords] = useState<any[]>([]);
+  const [trends, setTrends] = useState<any>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isAddRecordOpen, setIsAddRecordOpen] = useState(false);
+  const [newRecord, setNewRecord] = useState({
+    diagnosis: '',
+    vitals: { bloodPressure: '', weight: '', temperature: '' },
+    notes: ''
   });
 
   const handleBookingSubmit = async (e: React.FormEvent) => {
@@ -62,6 +72,13 @@ const Dashboard: React.FC = () => {
         },
         body: JSON.stringify(bookingData)
       });
+
+      if (response.status === 401) {
+        alert("Session expired. Please login again.");
+        logout();
+        window.location.href = '/login';
+        return;
+      }
 
       if (response.ok) {
         alert('Consultation booked successfully!');
@@ -96,6 +113,14 @@ const Dashboard: React.FC = () => {
       const consultationsResponse = await fetch('/api/consultations', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+
+      if (consultationsResponse.status === 401) {
+        console.warn("Session expired (401) during data fetch. Logging out.");
+        logout();
+        window.location.href = '/login';
+        return;
+      }
+
       if (consultationsResponse.ok) {
         const consultationsData = await consultationsResponse.json();
         setConsultations(consultationsData);
@@ -105,10 +130,8 @@ const Dashboard: React.FC = () => {
       const messagesResponse = await fetch('/api/contact');
       if (messagesResponse.ok) {
         const allMessages = await messagesResponse.json();
-        // Filter messages for current user (assuming email match) or show all for demo if email not set
-        // For now, listing all for visibility or filtering if user has email
         const userMessages = allMessages.filter((msg: any) => msg.email === user?.email);
-        setMessages(userMessages.length > 0 ? userMessages : allMessages); // Fallback to all for demo
+        setMessages(userMessages.length > 0 ? userMessages : allMessages);
       }
 
       // Fetch Doctors
@@ -119,14 +142,88 @@ const Dashboard: React.FC = () => {
         const doctorsData = await doctorsResponse.json();
         setDoctors(doctorsData);
       } else {
-        // Fallback mock if API fails
-        setDoctors([
-          { _id: '1', name: 'Dr. Sarah Wilson' },
-          { _id: '2', name: 'Dr. James Chen' }
-        ]);
+        // Fallback or empty if needed
       }
+
+      // Fetch Health Records
+      const healthResponse = await fetch('/api/health', { headers: { 'Authorization': `Bearer ${token}` } });
+      if (healthResponse.ok) {
+        const records = await healthResponse.json();
+        setHealthRecords(records);
+        if (records.length > 0) analyzeHealthTrends(records);
+      }
+
     } catch (error) {
       console.error('Error fetching data:', error);
+    }
+  };
+
+  const analyzeHealthTrends = async (records: any[]) => {
+    setIsAnalyzing(true);
+    try {
+      const response = await fetch('/api/ai/analyze-trends', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ records })
+      });
+      const data = await response.json();
+      setTrends(data);
+    } catch (error) {
+      console.error("Analysis failed", error);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleAddRecord = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('triksha_token');
+
+      // Sanitize payload: convert empty strings to undefined/null for numeric fields
+      const sanitizedVitals = {
+        bloodPressure: newRecord.vitals.bloodPressure,
+        weight: newRecord.vitals.weight ? Number(newRecord.vitals.weight) : undefined,
+        temperature: newRecord.vitals.temperature ? Number(newRecord.vitals.temperature) : undefined
+      };
+
+      const payload = {
+        ...newRecord,
+        vitals: sanitizedVitals
+      };
+
+      const response = await fetch('/api/health', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.status === 401) {
+        alert("Session expired. Please login again.");
+        logout();
+        window.location.href = '/login';
+        return;
+      }
+
+      if (response.ok) {
+        setIsAddRecordOpen(false);
+        setNewRecord({
+          diagnosis: '',
+          vitals: { bloodPressure: '', weight: '', temperature: '' },
+          notes: ''
+        });
+        fetchUserData();
+        alert("Record added!");
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to add record: ${errorData.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error("Failed to add record", error);
+      alert("An error occurred while adding the record.");
     }
   };
 
@@ -142,7 +239,6 @@ const Dashboard: React.FC = () => {
     }
   }, [user]);
 
-  // If user is a doctor, render the DoctorDashboard
   if (user?.role === 'doctor') {
     return <DoctorDashboard />;
   }
@@ -153,15 +249,12 @@ const Dashboard: React.FC = () => {
   };
 
   const handleSaveProfile = () => {
-    // Mock API call / Update Logic
     setIsEditing(false);
-    // In a real app, calls updateProfile(formData) here
     alert("Profile updated successfully! (Mock)");
   };
 
   const handleCancelEdit = () => {
     setIsEditing(false);
-    // Reset to original user data
     if (user) {
       setFormData({
         name: user.name || '',
@@ -222,8 +315,6 @@ const Dashboard: React.FC = () => {
     setIsCalling(true);
   };
 
-
-
   const handleHangup = () => {
     if (apiRef.current) {
       apiRef.current.dispose();
@@ -244,7 +335,7 @@ const Dashboard: React.FC = () => {
   const stats = [
     { name: 'Total Consultations', value: consultations.length, icon: <Video className="h-8 w-8 text-blue-600" /> },
     { name: 'Upcoming Appointments', value: consultations.filter(c => new Date(c.scheduledDate) > new Date()).length, icon: <Calendar className="h-8 w-8 text-green-600" /> },
-    { name: 'Health Records', value: '12', icon: <FileText className="h-8 w-8 text-purple-600" /> },
+    { name: 'Health Records', value: healthRecords.length, icon: <FileText className="h-8 w-8 text-purple-600" /> },
     { name: 'Messages', value: messages.length, icon: <MessageSquare className="h-8 w-8 text-orange-600" />, action: () => setActiveTab('messages') }
   ];
 
@@ -415,8 +506,159 @@ const Dashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Other Tabs */}
-        {activeTab === 'health-records' && <div className="bg-white p-6 rounded-xl shadow-md text-center"><FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" /><p>Health Records will appear here.</p></div>}
+        {/* Health Records Tab */}
+        {activeTab === 'health-records' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">Medical History & Analysis</h2>
+              <button
+                onClick={() => setIsAddRecordOpen(true)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+                <FileText className="h-4 w-4" /> <span>Add Record</span>
+              </button>
+            </div>
+
+            {/* AI Analysis Card */}
+            <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-xl border border-blue-100 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <Activity className="h-24 w-24 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-bold text-indigo-900 flex items-center space-x-2">
+                <Activity className="h-5 w-5 text-indigo-600" />
+                <span>Health Improvement Analysis</span>
+              </h3>
+
+              {isAnalyzing ? (
+                <p className="text-gray-500 mt-2 animate-pulse">Analyzing your health trends...</p>
+              ) : trends ? (
+                <div className="mt-4 space-y-3 relative z-10">
+                  <p className="text-gray-700 font-medium">{trends.summary}</p>
+
+                  {trends.improvements?.length > 0 && (
+                    <div className="bg-green-100 p-3 rounded-lg border border-green-200">
+                      <h4 className="text-green-800 font-semibold text-sm mb-1">Improvements Detected:</h4>
+                      <ul className="list-disc list-inside text-sm text-green-700">
+                        {trends.improvements.map((imp: string, i: number) => <li key={i}>{imp}</li>)}
+                      </ul>
+                    </div>
+                  )}
+
+                  {trends.concerns?.length > 0 && (
+                    <div className="bg-yellow-100 p-3 rounded-lg border border-yellow-200">
+                      <h4 className="text-yellow-800 font-semibold text-sm mb-1">Areas for Attention:</h4>
+                      <ul className="list-disc list-inside text-sm text-yellow-700">
+                        {trends.concerns.map((con: string, i: number) => <li key={i}>{con}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-gray-500 mt-2">Add more health records to see AI-driven insights.</p>
+              )}
+            </div>
+
+            {/* Records List */}
+            <div className="grid grid-cols-1 gap-4">
+              {healthRecords.map((record: any, index: number) => (
+                <div key={index} className="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500 hover:shadow-lg transition-all">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-900">{record.diagnosis || 'General Checkup'}</h4>
+                      <p className="text-sm text-gray-500">{new Date(record.date).toLocaleDateString()}</p>
+                    </div>
+                    {record.vitals?.bloodPressure && (
+                      <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                        BP: {record.vitals.bloodPressure}
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-500 block">Symptoms</span>
+                      <span className="text-gray-800">{record.symptoms?.join(', ') || 'None listed'}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500 block">Vitals</span>
+                      <span className="text-gray-800">
+                        {record.vitals?.weight ? `${record.vitals.weight} kg` : ''}
+                        {record.vitals?.temperature ? ` • ${record.vitals.temperature}°F` : ''}
+                      </span>
+                    </div>
+                  </div>
+                  {record.notes && (
+                    <div className="mt-3 bg-gray-50 p-3 rounded text-sm text-gray-600 italic">
+                      "{record.notes}"
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {healthRecords.length === 0 && (
+                <div className="text-center py-10 text-gray-500">
+                  <FileText className="h-12 w-12 mx-auto mb-2 opacity-30" />
+                  <p>No medical records found.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Add Record Modal */}
+        {isAddRecordOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold">Add Health Record</h3>
+                <button onClick={() => setIsAddRecordOpen(false)}><X className="h-6 w-6 text-gray-500" /></button>
+              </div>
+              <form onSubmit={handleAddRecord} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Diagnosis / Reason</label>
+                  <input type="text" className="w-full border rounded p-2 mt-1" required
+                    value={newRecord.diagnosis}
+                    onChange={e => setNewRecord({ ...newRecord, diagnosis: e.target.value })}
+                    placeholder="e.g. Viral Fever, Regular Checkup"
+                  />
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">BP (mmHg)</label>
+                    <input type="text" className="w-full border rounded p-2 mt-1"
+                      value={newRecord.vitals.bloodPressure}
+                      onChange={e => setNewRecord({ ...newRecord, vitals: { ...newRecord.vitals, bloodPressure: e.target.value } })}
+                      placeholder="120/80"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Weight (kg)</label>
+                    <input type="number" className="w-full border rounded p-2 mt-1"
+                      value={newRecord.vitals.weight}
+                      onChange={e => setNewRecord({ ...newRecord, vitals: { ...newRecord.vitals, weight: e.target.value } })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Temp (°F)</label>
+                    <input type="number" className="w-full border rounded p-2 mt-1"
+                      value={newRecord.vitals.temperature}
+                      onChange={e => setNewRecord({ ...newRecord, vitals: { ...newRecord.vitals, temperature: e.target.value } })}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Doctor's Notes</label>
+                  <textarea className="w-full border rounded p-2 mt-1" rows={3}
+                    value={newRecord.notes}
+                    onChange={e => setNewRecord({ ...newRecord, notes: e.target.value })}
+                  ></textarea>
+                </div>
+                <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded font-medium hover:bg-blue-700">
+                  Save Record
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+
         {activeTab === 'messages' &&
           <div className="bg-white p-6 rounded-xl shadow-md">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Messages</h2>
@@ -545,20 +787,7 @@ const Dashboard: React.FC = () => {
           </div>
         }
       </div>
-      {/* <button
-        onClick={() => setIsVoiceAssistantOpen(!isVoiceAssistantOpen)}
-        className="fixed bottom-6 right-6 bg-gradient-to-r from-teal-600 to-emerald-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 z-40"
-        title="Open Voice Assistant"
-      >
-        <Mic className="h-6 w-6" />
-      </button> */}
-
-      {/* Voice Assistant Component */}
-      {/* <VoiceAssistant
-        isOpen={isVoiceAssistantOpen}
-        onClose={() => setIsVoiceAssistantOpen(false)}
-      /> */}
-      {/* Booking Modal */}
+      {/* Voice Assistant and Booking Modal logic integrated above */}
       {isBookingModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">

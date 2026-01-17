@@ -2,6 +2,7 @@
 import express from 'express';
 // import { GoogleGenerativeAI } from '@google/generative-ai'; // DISABLED: Module not found
 import dotenv from 'dotenv';
+import HealthRecord from '../models/HealthRecord.js';
 
 dotenv.config();
 
@@ -60,30 +61,106 @@ const analyzeWithMockAI = (type, content) => {
     return result;
 };
 
+// --- TREND ANALYSIS MOCK ---
+const analyzeTrendsMock = (records) => {
+    if (!records || records.length < 2) {
+        return {
+            summary: "Not enough data to analyze trends. Please add at least two health records.",
+            improvements: [],
+            concerns: []
+        };
+    }
+
+    // Sort by date ascending (oldest to newest)
+    const sorted = [...records].sort((a, b) => new Date(a.date) - new Date(b.date));
+    const oldest = sorted[0];
+    const newest = sorted[sorted.length - 1];
+
+    let summary = "Based on your recent records, we have analyzed your health progression.";
+    let improvements = [];
+    let concerns = [];
+
+    // Blood Pressure Logic
+    if (oldest.vitals?.bloodPressure && newest.vitals?.bloodPressure) {
+        const parseBP = (bp) => parseInt(bp.split('/')[0]); // Systolic
+        const oldSys = parseBP(oldest.vitals.bloodPressure);
+        const newSys = parseBP(newest.vitals.bloodPressure);
+
+        if (oldSys > 140 && newSys < 130) {
+            improvements.push("Blood Pressure has significantly improved from unhealthy levels.");
+        } else if (newSys < oldSys) {
+            improvements.push("Blood Pressure is trending downwards (Improvement).");
+        } else if (newSys > oldSys) {
+            concerns.push("Blood Pressure has increased slightly.");
+        }
+    }
+
+    // Weight Logic
+    if (oldest.vitals?.weight && newest.vitals?.weight) {
+        const diff = oldest.vitals.weight - newest.vitals.weight;
+        if (Math.abs(diff) > 1) {
+            summary += ` You have ${diff > 0 ? 'lost' : 'gained'} ${Math.abs(diff)} kg.`;
+        }
+    }
+
+    // General Logic
+    improvements.push("Consistent record keeping is key to better health!");
+
+    return { summary, improvements, concerns };
+};
+
+
 router.post('/analyze', async (req, res) => {
+    // ... existing analyze logic ...
     try {
         const { type, content } = req.body;
+        // ...
+        // Re-implementing existing block for context match
         if (!type || !content) return res.status(400).json({ message: "Missing type or content" });
 
         console.log(`🧠 AI Engine processing: ${type}`);
-
-        try {
-            // Attempt Real AI (Disabled for now)
-            // const analysis = await callGemini(type, content);
-            // console.log("✅ Gemini Success");
-            // res.json(analysis);
-            throw new Error("Module Disabled");
-        } catch (aiError) {
-            // Fallback to Mock
-            console.warn("⚠️ Gemini failed/missing. Using Mock.");
-            const analysis = analyzeWithMockAI(type, content);
-            // Artificial delay for realism
-            setTimeout(() => res.json(analysis), 1500);
-        }
+        // Fallback to Mock
+        const analysis = analyzeWithMockAI(type, content);
+        setTimeout(() => res.json(analysis), 1500);
 
     } catch (error) {
-        console.error("AI Route Critical Failure:", error);
         res.status(500).json({ message: "Internal Processing Error" });
+    }
+});
+
+// NEW: Trend Analysis Route
+router.post('/analyze-trends', async (req, res) => {
+    try {
+        let { records, userId } = req.body;
+
+        // Fetch from DB if userId provided
+        if (userId && (!records || records.length === 0)) {
+            console.log(`Fetching records for user: ${userId}`);
+            const healthData = await HealthRecord.findOne({ userId });
+            if (healthData && healthData.records) {
+                records = healthData.records;
+            }
+        }
+
+        console.log("📈 Analyzing Trends for records:", records?.length);
+
+        if (!records || records.length === 0) {
+            return res.json({
+                summary: "No health records found to analyze.",
+                improvements: [],
+                concerns: []
+            });
+        }
+
+        // Simulate AI Processing Delay
+        setTimeout(() => {
+            const analysis = analyzeTrendsMock(records);
+            res.json(analysis);
+        }, 2000);
+
+    } catch (error) {
+        console.error("Trend Analysis Failed:", error);
+        res.status(500).json({ message: "Analysis Failed" });
     }
 });
 

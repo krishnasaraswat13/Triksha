@@ -12,10 +12,10 @@ dotenv.config();
 
 const seedData = async () => {
     try {
-        fs.writeFileSync('seed_debug.log', 'Starting seed...\n');
+        fs.writeFileSync('seed_debug_new.log', 'Starting seed new...\n');
         const log = (msg) => {
             console.log(msg);
-            fs.appendFileSync('seed_debug.log', msg + '\n');
+            fs.appendFileSync('seed_debug_new.log', msg + '\n');
         };
 
         await connectDB();
@@ -240,38 +240,69 @@ const seedData = async () => {
         ]);
         log(`💊 Created ${pharmacies.length} Pharmacies`);
 
+
+
+        // Helper to create date
+        const getDate = (daysAgo) => {
+            const d = new Date();
+            d.setDate(d.getDate() - daysAgo);
+            return d;
+        };
+
         // --- Create Health Records ---
-        const healthRecords = await HealthRecord.create([
+        log('DEBUG: Patients found: ' + patients.map(p => `${p.name} (${p._id})`).join(', '));
+
+        const healthRecordPayload = [
             {
-                userId: patients[4]._id, // Vikram (Completed Consultation)
+                userId: patients[4]._id, // Vikram
                 consultationId: consultations[4]._id,
                 records: [{
                     date: yesterday,
-                    symptoms: ['Knee Pain', 'Swelling'],
+                    symptoms: ['Knee Pain'],
                     diagnosis: 'Mild Arthritis',
                     vitals: { bloodPressure: '130/85', heartRate: 78, temperature: 98.6, weight: 75, height: 175 },
-                    medications: [
-                        { name: 'Volini Gel', dosage: 'Apply twice', frequency: 'Daily', duration: '5 days' },
-                        { name: 'Combiflam', dosage: '400mg', frequency: 'SOS', duration: '3 days' }
-                    ],
-                    notes: 'Degenerative changes observed.'
+                    medications: [{ name: 'Volini', dosage: 'Apply twice', frequency: 'Daily', duration: '5 days' }],
+                    notes: 'Degenerative changes.'
                 }]
             },
             {
-                userId: patients[2]._id, // Suresh (Diabetes)
+                userId: patients[2]._id, // Suresh
                 records: [{
-                    date: new Date(today.getDate() - 30),
-                    symptoms: ['Fatigue', 'Increased Thirst'],
+                    date: getDate(30),
+                    symptoms: ['Fatigue'],
                     diagnosis: 'Type 2 Diabetes',
                     vitals: { bloodPressure: '140/90', heartRate: 82, temperature: 98.4, weight: 85, height: 170 },
-                    medications: [
-                        { name: 'Metformin', dosage: '500mg', frequency: 'Twice Daily', duration: 'Ongoing' }
-                    ],
-                    notes: 'Dietary changes recommended.'
+                    medications: [{ name: 'Metformin', dosage: '500mg', frequency: 'Twice Daily', duration: 'Ongoing' }],
+                    notes: 'Dietary changes.'
                 }]
+            },
+            {
+                userId: patients[3]._id, // Anjali
+                records: [
+                    {
+                        date: getDate(60),
+                        diagnosis: 'Hypothyroidism',
+                        symptoms: ['Fatigue'],
+                        vitals: { bloodPressure: '120/80', weight: 65, temperature: 98.6, heartRate: 72 },
+                        medications: [{ name: 'Thyronorm', dosage: '50mcg', frequency: 'Daily', duration: 'Ongoing' }],
+                        notes: 'Initial diagnosis.'
+                    },
+                    {
+                        date: getDate(2),
+                        diagnosis: 'Routine Checkup',
+                        symptoms: ['None'],
+                        vitals: { bloodPressure: '115/75', weight: 62, temperature: 98.6, heartRate: 68 },
+                        medications: [{ name: 'Thyronorm', dosage: '50mcg', frequency: 'Daily', duration: 'Ongoing' }],
+                        notes: 'Patient feels energetic.'
+                    }
+                ]
             }
-        ]);
+        ];
+        log('DEBUG: Payload prepared for ' + healthRecordPayload.length + ' users.');
+
+        const healthRecords = await HealthRecord.create(healthRecordPayload);
         log(`📋 Created ${healthRecords.length} Health Records`);
+        log(JSON.stringify(healthRecords.map(h => h.userId), null, 2));
 
         fs.writeFileSync('seed_success.txt', 'Seeding completed at ' + new Date().toISOString());
         log('✅ Seeding Completed Successfully! Login details:');

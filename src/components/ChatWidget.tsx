@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageSquare, X, Send, Mic, Volume2, Loader } from 'lucide-react';
+import { MessageSquare, X, Send, Mic, Volume2, Loader, Maximize2, Minimize2 } from 'lucide-react';
 
 interface Message {
     id: string;
@@ -10,6 +10,7 @@ interface Message {
 
 const ChatWidget: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const [isFullScreen, setIsFullScreen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
         {
             id: '1',
@@ -97,9 +98,13 @@ const ChatWidget: React.FC = () => {
             }
 
             // Call Backend API
+            const token = localStorage.getItem('triksha_token');
             const response = await fetch('/api/chatbot/symptom-check', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                },
                 body: JSON.stringify({ symptoms: text, language: 'en' })
             });
 
@@ -139,28 +144,58 @@ const ChatWidget: React.FC = () => {
 
             {/* Chat Window */}
             {isOpen && (
-                <div className="fixed bottom-24 right-6 w-96 h-[500px] max-h-[80vh] bg-white rounded-xl shadow-2xl border border-gray-200 z-[9999] flex flex-col overflow-hidden animate-fade-in-up">
-                    {/* Header */}
-                    <div className="bg-[#002B4E] p-4 flex justify-between items-center text-white">
-                        <div className="flex items-center space-x-2">
-                            <div className="bg-teal-500 p-1 rounded-full">
-                                <MessageSquare className="h-4 w-4 text-white" />
-                            </div>
-                            <h3 className="font-semibold text-lg">Health Agent</h3>
+                <div
+                    className={`${isFullScreen
+                        ? 'fixed inset-0 w-full h-full rounded-none'
+                        : 'fixed bottom-24 right-6 w-96 h-[500px] max-h-[80vh] rounded-xl'
+                        } bg-white shadow-2xl border border-gray-200 z-[9999] flex flex-col overflow-hidden animate-fade-in-up transition-all duration-300 ease-in-out`}
+                >
+                    {/* AI Animation Background (Visible only in Full Screen) */}
+                    {isFullScreen && (
+                        <div className="absolute inset-0 z-0 overflow-hidden bg-slate-900 pointer-events-none">
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-teal-500/20 rounded-full blur-3xl animate-ping" style={{ animationDuration: '3s' }}></div>
+                            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
                         </div>
-                        <button onClick={() => setIsOpen(false)} className="hover:text-gray-300 transition-colors">
-                            <X className="h-5 w-5" />
-                        </button>
+                    )}
+
+                    {/* Header */}
+                    <div className={`p-4 flex justify-between items-center z-10 ${isFullScreen ? 'bg-slate-900/90 text-white backdrop-blur-md border-b border-slate-700' : 'bg-[#002B4E] text-white'}`}>
+                        <div className="flex items-center space-x-2">
+                            <div className={`${isFullScreen ? 'bg-teal-500/20' : 'bg-teal-500'} p-1.5 rounded-full`}>
+                                <MessageSquare className={`h-4 w-4 ${isFullScreen ? 'text-teal-400' : 'text-white'}`} />
+                            </div>
+                            <h3 className="font-semibold text-lg tracking-wide">Health Agent <span className="text-xs font-normal opacity-70 ml-2">AI Powered</span></h3>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <button
+                                onClick={() => setIsFullScreen(!isFullScreen)}
+                                className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+                                title={isFullScreen ? "Minimize" : "Maximize"}
+                            >
+                                {isFullScreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+                            </button>
+                            <button
+                                onClick={() => setIsOpen(false)}
+                                className="p-1.5 hover:bg-red-500/80 hover:text-white rounded-lg transition-colors"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
                     </div>
 
                     {/* Messages Area */}
-                    <div className="flex-1 p-4 overflow-y-auto bg-gray-50 space-y-4">
+                    <div className={`flex-1 p-4 overflow-y-auto space-y-4 z-10 ${isFullScreen ? 'bg-transparent scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent' : 'bg-gray-50'}`}>
                         {messages.map((msg) => (
                             <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 <div
-                                    className={`max-w-[80%] p-3 rounded-2xl text-sm ${msg.sender === 'user'
-                                        ? 'bg-teal-600 text-white rounded-br-none'
-                                        : 'bg-white text-gray-800 border border-gray-200 shadow-sm rounded-bl-none'
+                                    className={`max-w-[80%] p-3.5 rounded-2xl text-sm leading-relaxed backdrop-blur-sm ${msg.sender === 'user'
+                                        ? isFullScreen
+                                            ? 'bg-blue-600/80 text-white rounded-br-none shadow-[0_0_15px_rgba(37,99,235,0.3)] border border-blue-500/30'
+                                            : 'bg-teal-600 text-white rounded-br-none'
+                                        : isFullScreen
+                                            ? 'bg-slate-800/80 text-gray-100 rounded-bl-none border border-slate-700 shadow-[0_0_15px_rgba(255,255,255,0.05)]'
+                                            : 'bg-white text-gray-800 border border-gray-200 shadow-sm rounded-bl-none'
                                         }`}
                                 >
                                     {msg.text}
@@ -169,8 +204,17 @@ const ChatWidget: React.FC = () => {
                         ))}
                         {isLoading && (
                             <div className="flex justify-start">
-                                <div className="bg-white p-3 rounded-2xl rounded-bl-none border border-gray-200 shadow-sm">
-                                    <Loader className="h-4 w-4 animate-spin text-teal-600" />
+                                <div
+                                    className={`p-4 rounded-2xl rounded-bl-none ${isFullScreen
+                                        ? 'bg-slate-800/80 border border-slate-700'
+                                        : 'bg-white border border-gray-200 shadow-sm'
+                                        }`}
+                                >
+                                    <div className="flex space-x-1.5">
+                                        <div className={`w-2 h-2 rounded-full animate-bounce ${isFullScreen ? 'bg-teal-400' : 'bg-teal-600'}`} style={{ animationDelay: '0ms' }}></div>
+                                        <div className={`w-2 h-2 rounded-full animate-bounce ${isFullScreen ? 'bg-teal-400' : 'bg-teal-600'}`} style={{ animationDelay: '150ms' }}></div>
+                                        <div className={`w-2 h-2 rounded-full animate-bounce ${isFullScreen ? 'bg-teal-400' : 'bg-teal-600'}`} style={{ animationDelay: '300ms' }}></div>
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -178,11 +222,14 @@ const ChatWidget: React.FC = () => {
                     </div>
 
                     {/* Input Area */}
-                    <div className="p-4 bg-white border-t border-gray-100">
-                        <div className="flex items-center space-x-2 bg-gray-100 rounded-full px-4 py-2">
+                    <div className={`p-4 z-10 border-t ${isFullScreen ? 'bg-slate-900/90 border-slate-700 backdrop-blur-md' : 'bg-white border-gray-100'}`}>
+                        <div className={`flex items-center space-x-2 rounded-full px-4 py-2.5 transition-all ${isFullScreen ? 'bg-slate-800 border border-slate-600 focus-within:border-teal-500/50 focus-within:shadow-[0_0_20px_rgba(20,184,166,0.2)]' : 'bg-gray-100'}`}>
                             <button
                                 onClick={toggleListening}
-                                className={`p-2 rounded-full transition-colors ${isListening ? 'bg-red-100 text-red-500' : 'hover:bg-gray-200 text-gray-500'}`}
+                                className={`p-2 rounded-full transition-colors ${isListening
+                                    ? 'bg-red-500/20 text-red-500'
+                                    : isFullScreen ? 'hover:bg-slate-700 text-slate-400 hover:text-teal-400' : 'hover:bg-gray-200 text-gray-500'
+                                    }`}
                                 title="Voice Input"
                             >
                                 {isListening ? <Mic className="h-5 w-5 animate-pulse" /> : <Mic className="h-5 w-5" />}
@@ -192,13 +239,13 @@ const ChatWidget: React.FC = () => {
                                 value={inputText}
                                 onChange={(e) => setInputText(e.target.value)}
                                 onKeyPress={handleKeyPress}
-                                placeholder="Type or speak..."
-                                className="flex-1 bg-transparent border-none focus:ring-0 text-sm placeholder-gray-400"
+                                placeholder="Ask anything about your health..."
+                                className={`flex-1 bg-transparent border-none focus:ring-0 text-sm ${isFullScreen ? 'text-white placeholder-slate-500' : 'text-gray-900 placeholder-gray-400'}`}
                             />
                             {inputText ? (
                                 <button
                                     onClick={() => handleSend()}
-                                    className="p-2 bg-teal-600 text-white rounded-full hover:bg-teal-700 transition-colors"
+                                    className={`p-2 rounded-full transition-all hover:scale-105 ${isFullScreen ? 'bg-gradient-to-r from-teal-500 to-blue-500 text-white shadow-lg shadow-teal-500/20' : 'bg-teal-600 text-white hover:bg-teal-700'}`}
                                 >
                                     <Send className="h-4 w-4" />
                                 </button>
@@ -208,9 +255,16 @@ const ChatWidget: React.FC = () => {
                                 ) : <div className="w-8"></div>
                             )}
                         </div>
-                        <div className="text-center mt-2">
-                            <span className="text-[10px] text-gray-400">Powered by Triksha AI</span>
-                        </div>
+                        {isFullScreen && (
+                            <div className="text-center mt-3">
+                                <span className="text-[10px] uppercase tracking-widest text-slate-500">Secure Health Intelligence Protocol v1.0</span>
+                            </div>
+                        )}
+                        {!isFullScreen && (
+                            <div className="text-center mt-2">
+                                <span className="text-[10px] text-gray-400">Powered by Triksha AI</span>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

@@ -2,6 +2,7 @@
 import express from 'express';
 import User from '../models/User.js';
 import Consultation from '../models/Consultation.js';
+import HealthRecord from '../models/HealthRecord.js';
 import fs from 'fs';
 
 const router = express.Router();
@@ -12,6 +13,7 @@ router.get('/', async (req, res) => {
         // Clear existing data
         await User.deleteMany({});
         await Consultation.deleteMany({});
+        await HealthRecord.deleteMany({});
 
         // --- Create Doctors ---
         const doctors = await User.create([
@@ -176,11 +178,74 @@ router.get('/', async (req, res) => {
             }
         ]);
 
+        // --- Create Health Records (Anjali Gupta and others) ---
+        console.log('seeded consultations');
+
+        // Find Anjali
+        const anjali = patients.find(p => p.name === 'Anjali Gupta');
+        const rahul = patients.find(p => p.name === 'Rahul Sharma');
+
+        // Helper to create date
+        const getDate = (daysAgo) => {
+            const d = new Date();
+            d.setDate(d.getDate() - daysAgo);
+            return d;
+        };
+
+        if (anjali) {
+            await HealthRecord.create({
+                userId: anjali._id,
+                records: [
+                    {
+                        date: getDate(60),
+                        diagnosis: 'Hypothyroidism',
+                        symptoms: ['Fatigue', 'Weight Gain'],
+                        vitals: { bloodPressure: '120/80', weight: 65, temperature: 98.6, heartRate: 72 },
+                        medications: [{ name: 'Thyronorm', dosage: '50mcg', frequency: 'Daily', duration: 'Ongoing' }],
+                        notes: 'Initial diagnosis. TSH levels elevated.'
+                    },
+                    {
+                        date: getDate(30),
+                        diagnosis: 'Follow-up',
+                        symptoms: ['Mild Fatigue'],
+                        vitals: { bloodPressure: '118/78', weight: 64, temperature: 98.4, heartRate: 70 },
+                        medications: [{ name: 'Thyronorm', dosage: '50mcg', frequency: 'Daily', duration: 'Ongoing' }],
+                        notes: 'TSH levels improving. Weight slightly reduced.'
+                    },
+                    {
+                        date: getDate(2),
+                        diagnosis: 'Routine Checkup',
+                        symptoms: ['None'],
+                        vitals: { bloodPressure: '115/75', weight: 62, temperature: 98.6, heartRate: 68 },
+                        medications: [{ name: 'Thyronorm', dosage: '50mcg', frequency: 'Daily', duration: 'Ongoing' }],
+                        notes: 'Patient feels energetic. Treatment effective.'
+                    }
+                ]
+            });
+        }
+
+        if (rahul) {
+            await HealthRecord.create({
+                userId: rahul._id,
+                records: [
+                    {
+                        date: getDate(10),
+                        diagnosis: 'Viral Fever',
+                        symptoms: ['Fever', 'Body Ache'],
+                        vitals: { bloodPressure: '130/85', weight: 75, temperature: 101.2, heartRate: 88 },
+                        medications: [{ name: 'Paracetamol', dosage: '650mg', frequency: 'SOS', duration: '3 days' }],
+                        notes: 'Rest advised.'
+                    }
+                ]
+            });
+        }
+
         res.json({
             message: 'Database seeded successfully',
             doctors: doctors.length,
             patients: patients.length,
-            consultations: consultations.length
+            consultations: consultations.length,
+            healthRecords: 'Seeded for Anjali and Rahul'
         });
 
 

@@ -1,136 +1,124 @@
-<h1 align="center"> 🩺 Niramya – Free From Illness </h1>
-<h3 align="center"> Smart India Hackathon (SIH) Project </h3>
+<h1 align="center"> 🩺 Triksha – Unified Healthcare Platform </h1>
+<h3 align="center"> AI-Powered Healthcare For Everyone </h3>
+
 <pre>
-> - **AI-driven symptom checking**  
-> - **Tele-consultation with doctors**  
-> - **Voice-enabled chatbot** for low-literacy users  
-> - **Low-bandwidth optimization** for rural connectivity  
+> - **Multi-language AI Health Agent** (Voice & Text)
+> - **Smart Symptom Checking** (Online & Offline)
+> - **Unified Health Records**
+> - **Tele-consultation**
 </pre>
+
 ---
 
 ## 🏥 Problem Statement
-- Rural areas in India have **limited access to doctors and hospitals**.  
-- People with **low literacy struggle with text-heavy apps**.  
--# TRIKSHA - Unified Healthcare Platformpps require **high bandwidth and strong internet**.  
-- Early symptom detection and quick consultation can prevent **serious health issues**.  
+- **Language Barriers:** Mainstream apps often only support English, limiting access for millions.
+- **Connectivity:** Rural areas suffer from poor internet, making cloud-only AI unreliable.
+- **Complexity:** Complex interfaces deter elderly and low-literacy users.
 
 ---
 
 ## 💡 Our Solution – *Triksha*
-- ✅ **AI Symptom Checker** → Users enter symptoms, system suggests possible conditions.  
-- ✅ **Voice & Chatbot** → Supports **vernacular language voice input** for ease of use.  
-- ✅ **Tele-consultation** → Book and attend doctor consultations online (video/audio).  
-- ✅ **Health Dashboard** → Track vitals, medical history, prescriptions, and upcoming consultations.  
-- ✅ **Low-bandwidth Mode** → Optimized for rural areas with poor internet.  
+**Triksha** is a comprehensive healthcare platform designed for inclusivity. It bridges the gap between technology and the common person through:
+
+- ✅ **Vernacular AI Chatbot** → Speaks and understands 9+ Indian languages (Hindi, Bengali, Tamil, Telugu, etc.).
+- ✅ **Offline-First Intelligence** → Built-in medical knowledge base handles common symptom queries even without internet/API keys.
+- ✅ **Voice Assistant** → Just speak to the app! Perfect for users who prefer talking over typing.
+- ✅ **Unified Dashboard** → Connects Patients, Doctors, and Labs in one ecosystem.
 
 ---
 
-## ✨ Features
-- 🤖 **AI-Powered Symptom Checker**  
-- 🎙 **Voice-Enabled Chatbot** for low literacy users  
-- 📞 **Tele-consultation (Video/Audio)**  
-- 📊 **User Health Dashboard** with history & vitals  
-- 🔐 **Secure Login/Register** using JWT Auth  
-- 🌐 **Lightweight & Mobile-Friendly UI**  
+## ✨ Key Features
+
+### 🤖 Intelligent Health Agent
+- **Voice-Enabled:** Uses Web Speech API for real-time Speech-to-Text and Text-to-Speech.
+- **Multi-lingual:** Seamlessly switch between English, Hindi, Bengali, Marathi, Gujarati, Tamil, Telugu, Kannada, and Malayalam.
+- **Context-Aware:** Remembers valid sessions and provides localized responses.
+- **Hybrid AI:** 
+    - *Online:* Uses Google Gemini for deep, generative medical advice.
+    - *Offline:* Fallback knowledge base for instant answers to common symptoms (Fever, Back pain, BP, etc.).
+
+### ⚕️ Patient Care
+- **Tele-consultation:** High-quality video/audio calls with doctors.
+- **Health Records:** Secure storage for prescriptions and reports.
+- **Symptom Checker:** Instant analysis of symptoms with urgency estimation.
 
 ---
 
 ## ⚙️ Tech Stack
 
 ### 🔹 Frontend
-- **React + TypeScript** (UI framework)  
-- **Vite** (fast dev build tool)  
-- **Tailwind CSS** (styling)  
-- **shadcn/ui + lucide-react** (UI components & icons)  
+- **React + TypeScript** 
+- **Tailwind CSS** (Modern, responsive styling)
+- **Web Speech API** (Native Voice Support)
+- **Lucide React** (Icons)
 
 ### 🔹 Backend
-- **Node.js + Express** (API server)  
-- **MongoDB + Mongoose** (Database)  
-- **JWT (JSON Web Tokens)** for Authentication  
-- **REST API** for frontend communication  
-
-
-### 🔹 Other Tools
-- **Jitsi meet API  for one on one video counselling
-- **Omnidimension AI widget** for chatbot integration  
-- **Concurrently** for running frontend & backend together  
+- **Node.js + Express**
+- **MongoDB** (Data Storage)
+- **Google Gemini AI** (Generative Model)
+- **JWT** (Secure Authentication)
 
 ---
-⚠️ Environment Variables Disclaimer 
 
+## 🚀 Installation & Setup
 
-This project uses a .env file to store sensitive information such as database URIs and authentication secrets.
+### Prerequisites
+- Node.js >= 18
+- MongoDB (Local or Atlas)
 
-Never commit your .env file to GitHub.
+### Steps
 
-Instead, create a .env.example file with only variable names (no secrets).
+1. **Clone the repository**
+   ```bash
+   git clone <repo-url>
+   cd Triksha
+   ```
 
-Add .env to .gitignore before pushing your code.
+2. **Install Dependencies**
+   ```bash
+   # Install root/frontend dependencies
+   npm install
 
+   # Install backend dependencies
+   cd server
+   npm install
+   ```
 
-Example .env file for the backend (/server/.env):
+3. **Configure Environment**
+   Create a `.env` file in the `server/` directory:
+   ```env
+   PORT=5000
+   MONGODB_URI=mongodb://127.0.0.1:27017/niramya
+   JWT_SECRET=your_super_secret_key
+   GEMINI_API_KEY=your_google_gemini_key  # Optional: For advanced AI
+   ```
 
-PORT=5000
+4. **Run the Application**
+   ```bash
+   # From the project root (runs both Frontend and Backend)
+   npm run dev
+   ```
 
-MONGO_URI=your_mongodb_connection_string
+   - **Frontend:** http://localhost:5173
+   - **Backend:** http://localhost:5000
 
-JWT_SECRET=your_secret_key
-
-
-⚙️ Installation & Setup
-🔑 Prerequisites
-
-
-Node.js >= 18
-
-MongoDB Atlas / Local instance
-
-npm or yarn
-
- Steps
-# Clone repo
-git clone https://github.com/AnkitPandey2005/Niramya_SIH.git
-cd Niramya_SIH
-
-# Install dependencies
-npm install
-
-# Setup backend environment
-cd server
-cp .env.example .env   # create env file & update values
-
-▶️ Run Development Servers
-# from project root
-npm run dev
-
-
-Frontend → http://localhost:5173
-
-Backend API → http://localhost:5000
-
-API requests are proxied (via vite.config.ts).
+---
 
 ## 📂 Project Structure
-<pre>
-  Niramya_SIH/
-│── src/ # Frontend (React + TypeScript + Tailwind + Vite)
-│ ├── components/ # UI Components
-│ ├── pages/ # App Pages (Login, Dashboard, Consultation)
-│ ├── hooks/ # Custom React hooks
-│ └── main.tsx # Entry point
-│
-│── server/ # Backend (Node.js + Express + MongoDB)
-│ ├── routes/ # API routes
-│ ├── models/ # Database schemas
-│ ├── controllers/ # Business logic
-│ └── index.js # Entry point
-│
-│── index.html # Root HTML for Vite app
-│── package.json # Project dependencies & scripts
-│── vite.config.ts # Vite + Proxy config
-│── tailwind.config.js # Tailwind setup
-│── tsconfig.* # TypeScript configs
-</pre>
 
-Deploy Link :-  https://niramya.netlify.app/
-"# Triksha" 
+```
+Triksha/
+│── src/                  # Frontend Source
+│   ├── components/       # ChatWidget.tsx, Navbar.tsx
+│   ├── pages/            # Dashboard, Consultation
+│   └── context/          # Theme & Auth Context
+│
+│── server/               # Backend API
+│   ├── routes/           # chatbot.js, users.js
+│   ├── models/           # Mongoose Models
+│   └── index.js          # App Entry Point
+```
+
+---
+
+*Powered by Triksha AI*

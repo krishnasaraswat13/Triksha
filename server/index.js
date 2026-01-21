@@ -53,5 +53,5 @@ app.get('/api/status', (req, res) => {
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`🚀 NIRAMYA Server running on port ${PORT}`);
+  console.log(`🚀 TRIKSHA Server running on port ${PORT}`);
 });
